@@ -1,12 +1,12 @@
-class virt_oracle_groups inherits virt_groups {
+class virt_oracle_groups  {
 
     @group { dba:
-        gid    => 200,
+        gid    => 500,
         ensure => present,
     } 
 
     @group { oinstall:
-        gid    => 201,
+        gid    => 501,
         ensure => present,
     } 
 }
