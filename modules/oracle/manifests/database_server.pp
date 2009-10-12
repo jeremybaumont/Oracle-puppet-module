@@ -1,3 +1,8 @@
 class database_server {
-    include oracle::oracle_administrator
+    
+    # required user and groups  
+    include oracle::administrators
+
+    # required packages 
+    include oracle::system_packages
 }

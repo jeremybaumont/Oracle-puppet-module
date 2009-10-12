@@ -1,5 +1,5 @@
-class oracle_administrators {
-    include oracle::virt_oracle_users, oracle::virt_oracle_groups
+class administrators {
+    include oracle::virt_users, oracle::virt_groups
 
     realize(
             Group["dba"],

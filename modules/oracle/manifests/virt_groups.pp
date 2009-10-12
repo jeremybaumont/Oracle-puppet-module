@@ -1,4 +1,4 @@
-class virt_oracle_groups  {
+class virt_groups  {
 
     @group { dba:
         gid    => 500,
