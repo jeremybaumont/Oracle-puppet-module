@@ -1,0 +1,3 @@
+class virt_groups {
+
+}
