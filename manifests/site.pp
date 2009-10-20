@@ -1,9 +1,12 @@
 import "templates.pp"
-import "nodes.pp"
 import "classes/*"
 import "groups/*"
 import "users/*"
-#import "os/*"
+
+import "oracle"
+import "oracle/*.pp"
+
+import "nodes.pp"
 
 filebucket { main: server => puppet }
 File { backup => main }

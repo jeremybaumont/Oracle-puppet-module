@@ -1,4 +1,4 @@
-class virt_users  {
+class oracle::virt_users  {
 
     @user { oracle:
         ensure  => present,

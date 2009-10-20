@@ -1,4 +1,4 @@
-class administrators {
+class oracle::administrators {
     include oracle::virt_users, oracle::virt_groups
 
     realize(
