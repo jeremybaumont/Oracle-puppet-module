@@ -15,5 +15,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 class solaris {
-
+    file {
+        "/opt/applications":
+            ensure => directory,
+            owner => "root",
+            group => "root";
+        "/data":
+            ensure => directory,
+            owner => "root",
+            group => "root";
+        "/logs":
+            ensure => directory,
+            owner => "root",
+            group => "root";
+    }
 }

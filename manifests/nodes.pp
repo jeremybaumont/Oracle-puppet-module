@@ -15,13 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-node 'jeremy-test.wanadoo.nl' {
+node 'jeremy-test.wanadoo.nl' inherits oracle_database_server {
     $architecture = "sparc64"
-    $oracle_major_version = "10g"
     $operatingsystem = "solaris"
+
+    $oracle_major_version = "10g"
     $oracle_version = "10.2.0.4"
     $oracle_patch_version = "earth"
+    $oracle_sid = "PLGRND"
 
-    include  oracle::database_server 
-    
+    include oracle::database_server
 }

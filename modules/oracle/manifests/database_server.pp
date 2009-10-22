@@ -1,4 +1,5 @@
-
+#    database_server.pp - oracle database server software 9i/10g
+#
 #    Copyright (C) 2009 Jeremy Baumont 
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -35,6 +36,7 @@ class oracle::database_server {
                     File["oracle_major_version"],
                     File["oracle_version"]
                 ],
+        require => File["/opt/applications"],
         mode => 755 
     }
 
@@ -77,6 +79,195 @@ class oracle::database_server {
                     File["oracle_major_version"],
                     File["oracle_version"]
                 ],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_data":
+        path => "/data/oracle",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["/data"],
+        mode => 755
+    }
+    
+    oracle_dir {
+        "oracle_oralogs":
+        path => "/data/oracle/oralogs",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_data"],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_oralogs_${oracle_sid}":
+        path => "/data/oracle/oralogs/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_oralogs"],
+        before => [
+                File["oracle_oralogs_redo"],
+                File["oracle_oralogs_ctl"],
+                File["oracle_oralogs_arch"]
+            ],
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_oralogs_redo":
+        path => "/data/oracle/oralogs/${oracle_sid}/redo",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_oralogs_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_oralogs_ctl":
+        path => "/data/oracle/oralogs/${oracle_sid}/ctl",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_oralogs_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_oralogs_arch":
+        path => "/data/oracle/oralogs/${oracle_sid}/arch",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_oralogs_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_oradata":
+        path => "/data/oracle/oradata",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_data"],
+        before => File["oracle_oradata_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_oradata_${oracle_sid}":
+        path => "/data/oracle/oradata/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_oradata"],
+        mode => 755
+
+    }
+
+    oracle_dir {
+        "oracle_logs":
+        path => "/logs/oracle",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["/logs"],
+        mode => 755,
+        before => [
+                File["oracle_dumps"],
+                File["oracle_user_dumps"],
+                File["oracle_background_dumps"],
+                File["oracle_audit_dumps"],
+                File["oracle_core_dumps"]
+                ]
+    }
+
+    oracle_dir {
+        "oracle_dumps":
+        path => "/logs/oracle/oradumps",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_logs"],
+        before => [
+                File["oracle_user_dumps"],
+                File["oracle_background_dumps"],
+                File["oracle_audit_dumps"],
+                File["oracle_core_dumps"],
+                File["oracle_pfile_dir"],
+                File["oracle_dumps_${oracle_sid}"]
+                ] ,      
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_dumps_${oracle_sid}":
+        path => "/logs/oracle/oradumps/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_dumps"],
+        before => [
+                File["oracle_user_dumps"],
+                File["oracle_background_dumps"],
+                File["oracle_audit_dumps"],
+                File["oracle_core_dumps"],
+                File["oracle_pfile_dir"]
+                ],
+        mode => 755       
+    }
+
+    oracle_dir {
+        "oracle_user_dumps":
+        path => "/logs/oracle/oradumps/${oracle_sid}/udump",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_dumps_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_background_dumps":
+        path => "/logs/oracle/oradumps/${oracle_sid}/bdump",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_dumps_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_audit_dumps":
+        path => "/logs/oracle/oradumps/${oracle_sid}/adump",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_dumps_${oracle_sid}"],
+        mode => 755
+    }
+    
+    oracle_dir {
+        "oracle_core_dumps":
+        path => "/logs/oracle/oradumps/${oracle_sid}/cdump",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_dumps_${oracle_sid}"],
+        mode => 755
+    }
+
+    oracle_dir {
+        "oracle_pfile_dir":
+        path => "/logs/oracle/oradumps/${oracle_sid}/pfile",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        require => File["oracle_dumps_${oracle_sid}"],
         mode => 755
     }
 }
