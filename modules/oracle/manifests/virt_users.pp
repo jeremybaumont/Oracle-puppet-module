@@ -20,9 +20,30 @@ class oracle::virt_users  {
         ensure  => present,
         uid     => 500,
         gid     => 500,
-        comment => "Oracle User",
-        home    => "/home/oracle",
+        comment => "Oracle Application User",
+        home    => "/users/oracle",
         require => Group["dba"],
-        shell   => "/bin/bash",
+        shell   => "/usr/bin/bash",
+    }
+
+        file {
+        "/users/oracle/":
+            ensure => directory,
+            mode => 0750, owner => oracle, group => dba;
+        "/users/oracle/.bashrc":
+            source => "$fileserver/users/oracle/.bashrc",
+            mode => 0640, owner => oracle, group => dba;
+        "/users/oracle/.bash_profile":
+            name => "/users/oracle/.bash_profile",
+            mode => 0640, owner => oracle, group => dba;
+        "/users/oracle/.ssh":
+            ensure => directory,
+            mode => 0700, owner => oracle, group => dba;
+        "/users/oracle/.ssh/authorized_keys":
+            source => "$fileserver/users/oracle/.ssh/authorized_keys",
+            mode => 0600, owner => oracle, group => dba;
+#        "/users/oracle/.ssh/config":
+#            source => "$fileserver/users/oracle/.ssh/config",
+#            mode => 0600, owner => oracle, group => dba;
     }
 }

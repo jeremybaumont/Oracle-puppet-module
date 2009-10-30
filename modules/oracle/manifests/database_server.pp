@@ -24,6 +24,60 @@ class oracle::database_server {
     include oracle::database_server::system_packages
 
     # required directories
+    include oracle::database_server::directories
+
+    # required system profile
+    include oracle::database_server::system_profile
+
+} # end of class oracle::database_server
+
+
+class oracle::database_server::system_profile {
+
+
+    define oracle_system_profile ($oracle_base_path, $oracle_version,
+                                    $oracle_home_path, $oracle_sid,
+                                    $oracle_dumps, $oracle_oralogs) {
+        file {
+            $name:
+                content => template("oracle/bash_profile.oracle-template.erb") 
+        }
+    }
+
+    oracle_system_profile {
+            "/users/oracle/.bash_profile.oracle":  
+                oracle_base_path =>
+                    $oracle::database_server::directories::oracle_base_path, 
+                oracle_version =>  
+                    $oracle::database_server::directories::oracle_version,                                                                                      oracle_home_path => 
+                    $oracle::database_server::directories::oracle_home_path, 
+                oracle_sid => 
+                    $oracle::database_server::directories::oracle_sid,                                                                                          oracle_dumps => 
+                    $oracle::database_server::directories::oracle_dumps, 
+                oracle_oralogs =>
+                    $oracle::database_server::directories::oracle_oralogs 
+                       } 
+} # end of class oracle::database_server::system_profile
+
+
+class oracle::database_server::directories {
+
+
+    define oracle_dir ( $path, $ensure, $owner, $group, $mode ) {
+        file {
+            $name:
+            path => $path,
+            ensure => $ensure,
+            force => true,
+            owner => $owner,
+            group => $group,
+            recurse => 5,
+            mode => $mode
+        }
+    }
+
+    
+    # required directories
     $oracle_base_path = "/opt/applications/oracle"
     oracle_dir { 
        "oracle_base":
@@ -68,9 +122,10 @@ class oracle::database_server {
         mode => 755 
     }
 
+    $oracle_home_path = "${oracle_base_path}/${oracle_major_version}/${oracle_version}/${oracle_patch_version}"
     oracle_dir { 
         "oracle_home":
-        path => "${oracle_base_path}/${oracle_major_version}/${oracle_version}/${oracle_patch_version}",  
+        path => "${oracle_home_path}",  
         ensure => directory,
         owner => "oracle",
         group => "oinstall",
@@ -92,9 +147,10 @@ class oracle::database_server {
         mode => 755
     }
     
+    $oracle_oralogs = "/data/oracle/oralogs"
     oracle_dir {
         "oracle_oralogs":
-        path => "/data/oracle/oralogs",
+        path => "${oracle_oralogs}",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -104,7 +160,7 @@ class oracle::database_server {
 
     oracle_dir {
         "oracle_oralogs_${oracle_sid}":
-        path => "/data/oracle/oralogs/${oracle_sid}",
+        path => "${oracle_oralogs}/${oracle_sid}",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -119,7 +175,7 @@ class oracle::database_server {
 
     oracle_dir{
         "oracle_oralogs_redo":
-        path => "/data/oracle/oralogs/${oracle_sid}/redo",
+        path => "${oracle_oralogs}/${oracle_sid}/redo",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -129,7 +185,7 @@ class oracle::database_server {
 
     oracle_dir{
         "oracle_oralogs_ctl":
-        path => "/data/oracle/oralogs/${oracle_sid}/ctl",
+        path => "${oracle_oralogs}/${oracle_sid}/ctl",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -139,7 +195,7 @@ class oracle::database_server {
 
     oracle_dir{
         "oracle_oralogs_arch":
-        path => "/data/oracle/oralogs/${oracle_sid}/arch",
+        path => "${oracle_oralogs}/${oracle_sid}/arch",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -169,9 +225,10 @@ class oracle::database_server {
 
     }
 
+    $oracle_logs = "/logs/oracle"
     oracle_dir {
         "oracle_logs":
-        path => "/logs/oracle",
+        path => "${oracle_logs}",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -186,9 +243,10 @@ class oracle::database_server {
                 ]
     }
 
+    $oracle_dumps = "${oracle_logs}/oradumps"
     oracle_dir {
         "oracle_dumps":
-        path => "/logs/oracle/oradumps",
+        path => "${oracle_dumps}",
         ensure => directory,
         owner => "oracle",
         group => "dba",
@@ -270,21 +328,9 @@ class oracle::database_server {
         require => File["oracle_dumps_${oracle_sid}"],
         mode => 755
     }
-}
 
-define oracle_dir ( $path, $ensure, $owner, $group, $mode ) {
-    file {
-        $name:
-        path => $path,
-        ensure => $ensure,
-        force => true,
-        owner => $owner,
-        group => $group,
-        recurse => 5,
-        mode => $mode
-    }
-}
 
+} # end of class oracle::database_server::directories
 
 
 class oracle::database_server::system_packages {
@@ -343,4 +389,4 @@ class oracle::database_server::system_packages {
 
     package { $ystem_packages: ensure => installed, provider => $sun_provider }
 
-}
+} # end of class oracle::database_server::system_packages

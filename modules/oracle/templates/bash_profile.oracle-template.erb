@@ -1,0 +1,71 @@
+
+#    Copyright (C) 2009 Jeremy Baumont 
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Log a message on the output and exit properly
+log_and_exit()
+{   
+    local type="$1"
+    shift
+    local message="$*"
+    log $type $message
+    exit $EXITCODE
+}
+
+# Log a message on the output
+log()
+{   
+    local type="$1"
+    shift
+    local message="$*"
+    local dataflags="+%Y.%m.%d,%H:%M:%S"
+
+    echo "[$type] - `date $dataflags` - $message"
+}
+
+# unix prompt oriented for oracle dba
+PS1="\n\[\e[32;1m\](\[\e[37;1m\]\u\[\e[32;1m\])-(\[\e[37;1m\]`hostname`\[\e[32;1m\])-(\[\e[37;1m\]\@ \d\[\e[32;1m\])-(\[\e[37;1m\]\w\[\e[32;1m\])\n(\[\[\e[37;1m\]\${ORACLE_SID}\[\e[32;1m\])-> \[\e[0m\]"
+
+# oracle unix environment variables
+ORACLE_BASE=<%= oracle_base_path %>
+ORACLE_VERSION=<%= oracle_version %>
+ORACLE_HOME=<%= oracle_home_path %>
+ORACLE_SID=<%= oracle_sid %>
+# optional oracle unix environmen variables to simplify code review
+ORACLE_DUMPS=<%= oracle_dumps %>
+ORACLE_ORALOGS=<%= oracle_oralogs %>
+
+export ORACLE_BASE ORACLE_VERSION ORACLE_HOME ORACLE_SID
+log "INFO" "ORACLE_SID=${ORACLE_SID}"
+log "INFO" "ORACLE_VERSION=${ORACLE_VERSION}"
+log "INFO" "ORACLE_HOME=${ORACLE_HOME}"
+
+# oracle alias to speed up productivity
+alias alert='$HOME/dba_alertlog  ${ORACLE_DUMPS}/$ORACLE_SID/bdump/alert_$ORACLE_SID.log | tail -200  | less'
+alias arch='cd ${ORACLE_ORALOGS}/$ORACLE_SID/arch && ls -lrt'
+alias bdump='cd ${ORACLE_DUMPS}/$ORACLE_SID/bdump && ls -lrt'
+alias udump='cd ${ORACLE_DUMPS}/$ORACLE_SID/udump && ls -lrt'
+alias cdump='cd ${ORACLE_DUMPS}/$ORACLE_SID/cdump && ls -lrt'
+alias adump='cd ${ORACLE_DUMPS}/$ORACLE_SID/adump && ls -lrt'
+alias pfile='cd ${ORACLE_DUMPS}/$ORACLE_SID/pfile && ls -lrt'
+alias rm='rm -i'
+alias sid='env|grep ORACLE_SID'
+
+# keyboard commands
+stty erase 
+set -o vi
+
+
