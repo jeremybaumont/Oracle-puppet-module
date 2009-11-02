@@ -40,7 +40,8 @@ class oracle::database_server::system_profile {
                                     $oracle_dumps, $oracle_oralogs) {
         file {
             $name:
-                content => template("oracle/bash_profile.oracle-template.erb") 
+                content => template("oracle/bash_profile.oracle-template.erb"),
+                mode => 0644, owner => oracle, group => dba 
         }
     }
 

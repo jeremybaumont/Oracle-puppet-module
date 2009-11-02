@@ -36,6 +36,14 @@ log()
     echo "[$type] - `date $dataflags` - $message"
 }
 
+# Display main environment variables
+inforacle()
+{
+log "INFO" "ORACLE_SID=${ORACLE_SID}"
+log "INFO" "ORACLE_VERSION=${ORACLE_VERSION}"
+log "INFO" "ORACLE_HOME=${ORACLE_HOME}"
+}
+
 # unix prompt oriented for oracle dba
 PS1="\n\[\e[32;1m\](\[\e[37;1m\]\u\[\e[32;1m\])-(\[\e[37;1m\]`hostname`\[\e[32;1m\])-(\[\e[37;1m\]\@ \d\[\e[32;1m\])-(\[\e[37;1m\]\w\[\e[32;1m\])\n(\[\[\e[37;1m\]\${ORACLE_SID}\[\e[32;1m\])-> \[\e[0m\]"
 
@@ -49,9 +57,6 @@ ORACLE_DUMPS=<%= oracle_dumps %>
 ORACLE_ORALOGS=<%= oracle_oralogs %>
 
 export ORACLE_BASE ORACLE_VERSION ORACLE_HOME ORACLE_SID
-log "INFO" "ORACLE_SID=${ORACLE_SID}"
-log "INFO" "ORACLE_VERSION=${ORACLE_VERSION}"
-log "INFO" "ORACLE_HOME=${ORACLE_HOME}"
 
 # oracle alias to speed up productivity
 alias alert='$HOME/dba_alertlog  ${ORACLE_DUMPS}/$ORACLE_SID/bdump/alert_$ORACLE_SID.log | tail -200  | less'
@@ -63,9 +68,11 @@ alias adump='cd ${ORACLE_DUMPS}/$ORACLE_SID/adump && ls -lrt'
 alias pfile='cd ${ORACLE_DUMPS}/$ORACLE_SID/pfile && ls -lrt'
 alias rm='rm -i'
 alias sid='env|grep ORACLE_SID'
+alias i='inforacle'
+
+# display oracle main environment at login
+inforacle
 
 # keyboard commands
 stty erase 
 set -o vi
-
-

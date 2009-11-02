@@ -24,7 +24,9 @@ import "oracle/*.pp"
 
 import "nodes.pp"
 
-filebucket { main: server => puppet }
+filebucket { main: server => "p-reduck.euronet.nl" }
 File { backup => main }
 
+# where to fetch files from
+$fileserver = "puppet://p-reduck.euronet.nl/files"
 
