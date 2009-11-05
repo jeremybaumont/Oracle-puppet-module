@@ -73,6 +73,11 @@ alias i='inforacle'
 # display oracle main environment at login
 inforacle
 
+# set up X display and term for screen
+DISPLAY=:0.0
+TERM=vt220
+export DISPLAY TERM
+
 # keyboard commands
 stty erase 
 set -o vi
