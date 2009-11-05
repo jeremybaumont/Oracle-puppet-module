@@ -16,11 +16,11 @@
 #
 
 node 'jeremy-test.wanadoo.nl' inherits oracle_database_server {
-    $architecture = "sparc64"
+    $architecture = "sparc32"
     $operatingsystem = "solaris"
 
-    $oracle_major_version = "10g"
-    $oracle_version = "10.2.0.4"
+    $oracle_major_version = "9i"
+    $oracle_version = "9.2.0.8"
     $oracle_patch_version = "earth"
     $oracle_sid = "PLGRND"
 

@@ -79,6 +79,35 @@ class oracle::database_server::directories {
 
     
     # required directories
+#    oracle_dir {
+#        "var_opt":
+#            path => "/var/opt",
+#            ensure => directory,
+#            owner => "root",
+#            group => "root",
+#            before => File["var_opt_oracle"],
+#            mode => 755
+#    }
+#
+#    oracle_dir {
+#        "var_opt_oracle":
+#            path => "/var/opt/oracle",
+#            ensure => directory,
+#            owner => "root",
+#            group => "root",
+#            require => File["var_opt"],
+#            mode => 755
+#    }
+#    
+#    file {
+#        "/var/opt/oracle/oraInst.loc":
+#            ensure => present,
+#            force => true,
+#            owner => "root",
+#            group => "root",
+#            mode => 644
+#    }
+
     $oracle_base_path = "/opt/applications/oracle"
     oracle_dir { 
        "oracle_base":
@@ -94,6 +123,16 @@ class oracle::database_server::directories {
         require => File["/opt/applications"],
         mode => 755 
     }
+
+#    $oracle_inventory_path = "${oracle_base_path}/oraInventory"
+#    oracle_dir {
+#        "oracle_inventory":
+#            path => $oracle_inventory_path,
+#            ensure => directory,
+#            owner => "oracle",
+#            group => "oinstall",
+#            mode => 775
+#    }
 
     oracle_dir {
         "oracle_major_version":
