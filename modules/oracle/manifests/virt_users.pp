@@ -18,12 +18,14 @@ class oracle::virt_users  {
 
     @user { oracle:
         ensure  => present,
-        uid     => 500,
-        gid     => 500,
-        groups  => ["dba", "oinstall" ],
+        gid     => "dba",
+        groups  =>  [ "oinstall" , "other" ],
         comment => "Oracle Application User",
         home    => "/users/oracle",
-        require => [ Group["dba"], Group["oinstall"] ,]
+        require => [ 
+                    Group["dba"], 
+                    Group["oinstall"] 
+                    ] ,
         shell   => "/usr/bin/bash",
     }
 

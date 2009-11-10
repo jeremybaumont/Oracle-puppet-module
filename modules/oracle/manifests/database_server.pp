@@ -93,8 +93,8 @@ class oracle::database_server::directories {
 #        "var_opt_oracle":
 #            path => "/var/opt/oracle",
 #            ensure => directory,
-#            owner => "root",
-#            group => "root",
+#            owner => "oracle",
+#            group => "oinstall",
 #            require => File["var_opt"],
 #            mode => 755
 #    }
@@ -103,8 +103,8 @@ class oracle::database_server::directories {
 #        "/var/opt/oracle/oraInst.loc":
 #            ensure => present,
 #            force => true,
-#            owner => "root",
-#            group => "root",
+#            owner => "oracle",
+#            group => "oinstall",
 #            mode => 644
 #    }
 
