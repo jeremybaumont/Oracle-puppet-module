@@ -29,9 +29,68 @@ class oracle::database_server {
     # required system profile
     include oracle::database_server::system_profile
 
+    # required oracle software
+    include oracle::database_server::software
+
 } # end of class oracle::database_server
 
+###
+### software class is responsible to silent install from a response file
+### database server enterprise software only
+###
+class oracle::database_server::software {
 
+    $oracle_base_software = "/opt/applications/repository/oracle/database_server"
+
+    define install_oracle_database_server_software($oracle_version) {
+        case $operatingsystem {
+            default: { err ("unknown operation system value ${operatingsystem}") }
+            solaris: {
+                        case $oracle_version {
+                            default: {err("unknown oracle version value ${oracle_version}") }
+                            "9.2.0.8": {
+                                $disk1_9201_path = "${oracle_base_software}/${architecture}/9.2.0.1/disk1" 
+                                $disk2_9201_path = "${oracle_base_software}/${architecture}/9.2.0.1/disk2" 
+                                $disk3_9201_path = "${oracle_base_software}/${architecture}/9.2.0.1/disk3" 
+                                $current_oracle_home = $oracle::database_server::directories::oracle_home_path
+                                $responsefile_path = "${disk1_9201_path}/response/enterprise.rsp"
+
+                                exec {
+                                    "runinstaller-oui":
+                                    command => " nohup runInstaller -silent -responseFile ${responsefile_path} ORACLE_HOME=\"${current_oracle_home}\" ORACLE_HOME_NAME=\"earth\" UNIX_GROUP_NAME=\"oinstall\" LOCATION_FOR_DISK2=\"${disk2_9201_path}\"  LOCATION_FOR_DISK3=\"${disk3_9201_path}\"  s_cfgtyperet=\"Software Only\" 2>&1",
+#                                    command => "echo \"this should be logged  `date` \" ",
+                                    path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
+                                    cwd => "${disk1_9201_path}",
+                                    creates => "/var/opt/oracle/${oracle_version}_installed",
+                                    group => "oinstall",
+                                    user => "oracle",
+                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    logoutput => true,
+                                    returns => [0,1],
+                                }
+                            }
+                            "10.2.0.4": {
+
+        
+                            }
+                        }
+            }
+       }
+    }
+
+    install_oracle_database_server_software {
+        "oracle database enterprise software":
+        oracle_version => "9.2.0.8",
+    }
+}
+
+
+###
+### system_profile class is responsible to set up the correct operating
+### system profile that is build from a template and inherit variables. 
+### The system profile will export the famous ORACLE_HOME,
+### ORACLE_SID, ... and else environment variables.
+###
 class oracle::database_server::system_profile {
 
 
@@ -60,7 +119,10 @@ class oracle::database_server::system_profile {
                        } 
 } # end of class oracle::database_server::system_profile
 
-
+###
+### 
+###
+###
 class oracle::database_server::directories {
 
 
