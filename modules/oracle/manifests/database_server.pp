@@ -55,10 +55,18 @@ class oracle::database_server::software {
                                 $current_oracle_home = $oracle::database_server::directories::oracle_home_path
                                 $responsefile_path = "${disk1_9201_path}/response/enterprise.rsp"
 
+                                file{
+                                    "wruninstaller_${oracle_version}.sh":
+                                    name => "${disk1_9201_path}/wruninstaller_${oracle_version}.sh",
+                                    content => template("wruninstaller_${oracle_version}-template.erb"),
+                                    mode => 755,
+                                    owner => "oracle",
+                                    group => "oinstall", 
+                                } 
+
                                 exec {
                                     "runinstaller-oui":
-                                    command => " nohup runInstaller -silent -responseFile ${responsefile_path} ORACLE_HOME=\"${current_oracle_home}\" ORACLE_HOME_NAME=\"earth\" UNIX_GROUP_NAME=\"oinstall\" LOCATION_FOR_DISK2=\"${disk2_9201_path}\"  LOCATION_FOR_DISK3=\"${disk3_9201_path}\"  s_cfgtyperet=\"Software Only\" 2>&1",
-#                                    command => "echo \"this should be logged  `date` \" ",
+                                    command => "wruninstaller_${oracle_version}.sh ",
                                     path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
                                     cwd => "${disk1_9201_path}",
                                     creates => "/var/opt/oracle/${oracle_version}_installed",
@@ -67,6 +75,7 @@ class oracle::database_server::software {
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
+                                    require => File ["wruninstaller_${oracle_version}.sh"],
                                 }
                             }
                             "10.2.0.4": {
@@ -80,7 +89,7 @@ class oracle::database_server::software {
 
     install_oracle_database_server_software {
         "oracle database enterprise software":
-        oracle_version => "9.2.0.8",
+        oracle_version => $oracle_version,
     }
 }
 

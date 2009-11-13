@@ -58,6 +58,10 @@ ORACLE_ORALOGS=<%= oracle_oralogs %>
 
 export ORACLE_BASE ORACLE_VERSION ORACLE_HOME ORACLE_SID
 
+# update lib path and command path
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH
+
 # oracle alias to speed up productivity
 alias alert='$HOME/dba_alertlog  ${ORACLE_DUMPS}/$ORACLE_SID/bdump/alert_$ORACLE_SID.log | tail -200  | less'
 alias arch='cd ${ORACLE_ORALOGS}/$ORACLE_SID/arch && ls -lrt'
