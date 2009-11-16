@@ -1,12 +1,6 @@
 #!/usr/bin/bash
 
-EXPORT DISPLAY=:0.0
 
-runInstaller -silent \
-            -responseFile <%= responsefile_path %> \
-            ORACLE_HOME="<%= current_oracle_home %>" \
-            ORACLE_HOME_NAME="<%= oracle_patch_version %>" \
-            UNIX_GROUP_NAME="oinstall" \
-            LOCATION_FOR_DISK2="<%= disk2_9201_path %>" \
-            LOCATION_FOR_DISK3="<%= disk3_9201_path %>" \
-            s_cfgtyperet="Software Only"
+echo " Running the oracle silent install ./runInstaller -silent  -responseFile <%= responsefile_path %>  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\"  LOCATION_FOR_DISK2=\"<%= disk2_9201_path %>\"  LOCATION_FOR_DISK3=\"<%= disk3_9201_path %>\"  s_cfgtyperet=\"Software Only\" "
+
+./runInstaller -silent  -responseFile <%= responsefile_path %>  ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  LOCATION_FOR_DISK2="<%= disk2_9201_path %>"  LOCATION_FOR_DISK3="<%= disk3_9201_path %>"  s_cfgtyperet="Software Only"

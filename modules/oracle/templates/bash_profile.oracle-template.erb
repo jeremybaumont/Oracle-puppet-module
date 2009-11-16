@@ -78,7 +78,9 @@ alias i='inforacle'
 inforacle
 
 # set up X display and term for screen
-DISPLAY=:0.0
+# kind of magic here but the silent installer need
+# to make an x connection in order to load oui java classes
+DISPLAY=p-reduck.euronet.nl:0.0
 TERM=vt220
 export DISPLAY TERM
 

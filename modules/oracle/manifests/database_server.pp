@@ -54,11 +54,22 @@ class oracle::database_server::software {
                                 $disk3_9201_path = "${oracle_base_software}/${architecture}/9.2.0.1/disk3" 
                                 $current_oracle_home = $oracle::database_server::directories::oracle_home_path
                                 $responsefile_path = "${disk1_9201_path}/response/enterprise.rsp"
+                                $current_oracle_base = $oracle::database_server::directories::oracle_base_path
+                                $orainventory_path = "$current_oracle_base/oraInventory"
+
+                                file {
+                                    "oraInst.loc":
+                                    name => "/var/opt/oracle/oraInst.loc",
+                                    content => template("oracle/oraInst-template.erb"),
+                                    mode => 0644,
+                                    owner => "oracle",
+                                    group => "oinstall",
+                                }
 
                                 file{
                                     "wruninstaller_${oracle_version}.sh":
                                     name => "${disk1_9201_path}/wruninstaller_${oracle_version}.sh",
-                                    content => template("wruninstaller_${oracle_version}-template.erb"),
+                                    content => template("oracle/wruninstaller_${oracle_version}-template.erb"),
                                     mode => 755,
                                     owner => "oracle",
                                     group => "oinstall", 
@@ -72,7 +83,7 @@ class oracle::database_server::software {
                                     creates => "/var/opt/oracle/${oracle_version}_installed",
                                     group => "oinstall",
                                     user => "oracle",
-                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    environment => ["DISPLAY=p-reduck.euronet.nl:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => File ["wruninstaller_${oracle_version}.sh"],
