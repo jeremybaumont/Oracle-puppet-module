@@ -57,14 +57,6 @@ class oracle::database_server::software {
                                 $current_oracle_base = $oracle::database_server::directories::oracle_base_path
                                 $orainventory_path = "$current_oracle_base/oraInventory"
 
-                                file {
-                                    "oraInst.loc":
-                                    name => "/var/opt/oracle/oraInst.loc",
-                                    content => template("oracle/oraInst-template.erb"),
-                                    mode => 0644,
-                                    owner => "oracle",
-                                    group => "oinstall",
-                                }
 
                                 file{
                                     "wruninstaller_${oracle_version}.sh":
@@ -77,7 +69,7 @@ class oracle::database_server::software {
 
                                 exec {
                                     "runinstaller-oui":
-                                    command => "wruninstaller_${oracle_version}.sh ",
+                                    command => "wruninstaller_${oracle_version}.sh >/var/tmp/runinstaller-oui.log",
                                     path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
                                     cwd => "${disk1_9201_path}",
                                     creates => "/var/opt/oracle/${oracle_version}_installed",
@@ -87,6 +79,7 @@ class oracle::database_server::software {
                                     logoutput => true,
                                     returns => [0,1],
                                     require => File ["wruninstaller_${oracle_version}.sh"],
+                                    timeout => "-1",
                                 }
                             }
                             "10.2.0.4": {
@@ -161,36 +154,38 @@ class oracle::database_server::directories {
 
     
     # required directories
-#    oracle_dir {
-#        "var_opt":
-#            path => "/var/opt",
-#            ensure => directory,
-#            owner => "root",
-#            group => "root",
-#            before => File["var_opt_oracle"],
-#            mode => 755
-#    }
-#
-#    oracle_dir {
-#        "var_opt_oracle":
-#            path => "/var/opt/oracle",
-#            ensure => directory,
-#            owner => "oracle",
-#            group => "oinstall",
-#            require => File["var_opt"],
-#            mode => 755
-#    }
-#    
-#    file {
-#        "/var/opt/oracle/oraInst.loc":
-#            ensure => present,
-#            force => true,
-#            owner => "oracle",
-#            group => "oinstall",
-#            mode => 644
-#    }
+    oracle_dir {
+        "var_opt":
+            path => "/var/opt",
+            ensure => directory,
+            owner => "root",
+            group => "root",
+            before => File["var_opt_oracle"],
+            mode => 755
+    }
 
+    oracle_dir {
+        "var_opt_oracle":
+            path => "/var/opt/oracle",
+            ensure => directory,
+            owner => "oracle",
+            group => "oinstall",
+            require => File["var_opt"],
+            mode => 755
+    }
+    
     $oracle_base_path = "/opt/applications/oracle"
+    $orainventory_path = "$oracle_base_path/oraInventory"
+    file {
+        "/var/opt/oracle/oraInst.loc":
+            content => template("oracle/oraInst-template.erb"),
+            ensure => present,
+            force => true,
+            owner => "oracle",
+            group => "oinstall",
+            mode => 644
+    }
+
     oracle_dir { 
        "oracle_base":
         path => $oracle_base_path,
