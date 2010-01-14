@@ -1,0 +1,57 @@
+#!/usr/bin/bash 
+
+
+echo " Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  FROM_LOCATION="<%= products_patchset_path %>"  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\" " 
+
+./runInstaller -silent -ignoreSysPrereqs  -responseFile <%= responsefile_patchset_path %> FROM_LOCATION="<%= products_patchset_path %>" ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  
+
+orainventory_path=<%= orainventory_path %>
+oracle_install_log=`ls -lrt ${orainventory_path}/logs |grep oraInstall | grep out | tail -1 | awk '{print $9}'`
+oracle_install_log_path="${orainventory_path}/logs/${oracle_install_log}"
+
+function test_pad()                                                                                                                               
+{                                                                                                                                                 
+        file=$1
+
+        sleep 120
+        grep 'was successful' $file
+        if [ $? -eq 1 ]; then return 0; fi
+        
+        return 1                                                                                                                                  
+} 
+
+
+function reverse()                                                                                                                                
+{                                                                                                                                                 
+        string=$1                                                                                                                                 
+        len=$(echo -n $string | wc -c)                                                                                                            
+        while test $len -gt 0                                                                                                                     
+        do                                                                                                                                        
+                rev=$rev$(echo $string | cut -c $len)                                                                                             
+                len=$(( len - 1 ))                                                                                                                
+        done                                                                                                                                      
+        echo $rev                                                                                                                                 
+}                                                                                                                                                 
+                                                                                                                                                  
+ANIM="//--\\||"                                                                                                                                   
+PAD="                                                                  "                                                                          
+SLEEP="0.1"                                                                                                                                       
+                                                                                                                                                  
+ANIM_L="$(reverse $ANIM)"                                                                                                                         
+PAD_LN=${#PAD}                                                                                                                                    
+ANIM_LN=${#ANIM}                                                                                                                                  
+u=0; re=0; l=0                                                                                                                                    
+                                                                                                                                                  
+echo "Parsing log: ${oracle_install_log_path} for successful install message..."
+while test_pad $oracle_install_log_path; do                                                                                                                                
+        if [ $re -eq 1 ]; then L=$ANIM_L; else L=$ANIM; fi                                                                                        
+        if [ $re -eq 1 ]; then p=$(( $PAD_LN - $u )); else p=$u; fi                                                                               
+        echo -ne "${PAD:0:$p} ${L:$l:1} ${PAD:$p:$PAD_LN} \r"                                                                                     
+        if [ $u -eq $PAD_LN ]; then u=0; if [ $re -eq 1 ]; then re=0; else re=1; fi; fi                                                           
+        u=$(( u + 1 )); l=$(( l + 1 ))                                                                                                            
+        if [ $l -eq $ANIM_LN ]; then l=0; fi                                                                                                      
+        sleep $SLEEP                                                                                                                              
+done
+touch /var/opt/oracle/9.2.0.8_patchset_installed
+echo "The installation of Oracle9i patchset 9.2.0.8 Database was successful."
+exit 0

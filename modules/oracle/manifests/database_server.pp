@@ -57,30 +57,88 @@ class oracle::database_server::software {
                                 $current_oracle_base = $oracle::database_server::directories::oracle_base_path
                                 $orainventory_path = "$current_oracle_base/oraInventory"
 
-
+                                # build a script to run silent installer
+                                # of 11.2.0.1 Disk 1 Oracle database
+                                # server software enterprise edition
                                 file{
-                                    "wruninstaller_${oracle_version}.sh":
-                                    name => "${disk1_9201_path}/wruninstaller_${oracle_version}.sh",
-                                    content => template("oracle/wruninstaller_${oracle_version}-template.erb"),
+                                    "wruninstaller_9.2.0.1.sh":
+                                    name => "${disk1_9201_path}/wruninstaller_9.2.0.1.sh",
+                                    content => template("oracle/wruninstaller_9.2.0.1-template.erb"),
                                     mode => 755,
                                     owner => "oracle",
                                     group => "oinstall", 
                                 } 
-
+                                
+                                # run silent installer of 9.2.0.1 Disk 1
+                                # Orable database server software
+                                # enterprise edition
                                 exec {
                                     "runinstaller-oui":
-                                    command => "wruninstaller_${oracle_version}.sh >/var/tmp/runinstaller-oui.log",
+                                    command => "wruninstaller_9.2.0.1.sh >/var/tmp/runinstaller-oui_9.2.0.1.log",
                                     path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
                                     cwd => "${disk1_9201_path}",
-                                    creates => "/var/opt/oracle/${oracle_version}_installed",
+                                    creates => "/var/opt/oracle/9.2.0.1_installed",
                                     group => "oinstall",
                                     user => "oracle",
                                     environment => ["DISPLAY=p-reduck.euronet.nl:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
-                                    require => File ["wruninstaller_${oracle_version}.sh"],
+                                    require => File ["wruninstaller_9.2.0.1.sh"],
                                     timeout => "-1",
                                 }
+
+                                
+                                $disk1_9208_patchset_path = "${oracle_base_software}/${architecture}/patchset_9.2.0.8/Disk1" 
+                                $responsefile_patchset_path = "${disk1_9208_patchset_path}/response/patchset.rsp"
+                                $products_patchset_path = "${disk1_9208_patchset_path}/stage/products.xml"
+
+                                # build a script to run silent installer
+                                # of 9.2.0.8 Disk 1 Oracle database
+                                # server software enterprise edition
+                                # patchset
+                                file{
+                                    "wruninstaller_9.2.0.8_patchset.sh":
+                                    name => "${disk1_9208_patchset_path}/wruninstaller_9.2.0.8_patchset.sh",
+                                    content => template("oracle/wruninstaller_9.2.0.8_patchset-template.erb"),
+                                    mode => 755,
+                                    owner => "oracle",
+                                    group => "oinstall", 
+                                } 
+                                
+                                # run silent installer of 9.2.0.8 Disk 1
+                                # Orable database server software
+                                # enterprise edition patchset
+                                exec {
+                                    "runinstaller-patchset-oui":
+                                    command => 
+                                "wruninstaller_9.2.0.8_patchset.sh >/var/tmp/runinstaller-patchset-oui_9.2.0.8.log",
+                                    path => ["/usr/bin", 
+                                            "/usr/sbin", 
+                                            ".", 
+                                            "/opt/csw/bin", 
+                                            "/usr/sbin", 
+                                            "/usr/bin", 
+                                            "/usr/dt/bin", 
+                                            "/usr/openwin/bin", 
+                                            "/usr/ccs/bin",  
+                                            "/usr/sfw/bin",
+                                            "/usr/perl5/5.8.4/bin", 
+                                            "/opt/SUNWspro/bin"],
+                                    cwd => "${disk1_9208_patchset_path}",
+                                    creates => "/var/opt/oracle/9.2.0.8_patchset_installed",
+                                    group => "oinstall",
+                                    user => "oracle",
+                                    environment => ["DISPLAY=p-reduck.euronet.nl:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    logoutput => true,
+                                    returns => [0,1],
+                                    require => [
+                                                File ["wruninstaller_9.2.0.8_patchset.sh"],
+                                                Exec ["runinstaller-oui"]
+                                                ],
+                                    timeout => "-1",
+                                }
+
+
                             }
                             "10.2.0.4": {
 
@@ -147,7 +205,7 @@ class oracle::database_server::directories {
             force => true,
             owner => $owner,
             group => $group,
-            recurse => 5,
+            recurse => false,
             mode => $mode
         }
     }

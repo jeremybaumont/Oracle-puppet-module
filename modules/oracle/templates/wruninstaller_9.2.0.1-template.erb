@@ -52,5 +52,6 @@ while test_pad $oracle_install_log_path; do
         if [ $l -eq $ANIM_LN ]; then l=0; fi                                                                                                      
         sleep $SLEEP                                                                                                                              
 done
-
-echo "The installation of Oracle9i Database was successful."
+touch /var/opt/oracle/9.2.0.1_installed
+echo "The installation of Oracle9i 9.2.0.1 Database was successful."
+exit 0

@@ -18,6 +18,7 @@ class oracle::virt_users  {
 
     @user { oracle:
         ensure  => present,
+        uid     => 4000,
         gid     => "dba",
         groups  =>  [ "oinstall" , "other" ],
         comment => "Oracle Application User",

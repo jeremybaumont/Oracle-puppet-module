@@ -17,7 +17,7 @@
 class oracle::virt_groups  {
 
     @group { dba:
-        gid    => 500,
+        gid    => 4000,
         ensure => present,
     } 
 
