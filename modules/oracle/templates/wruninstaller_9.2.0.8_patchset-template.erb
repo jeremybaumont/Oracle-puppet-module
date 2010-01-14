@@ -3,6 +3,8 @@
 
 echo " Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  FROM_LOCATION="<%= products_patchset_path %>"  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\" " 
 
+cd <%= disk1_9208_patchset_path %>
+
 ./runInstaller -silent -ignoreSysPrereqs  -responseFile <%= responsefile_patchset_path %> FROM_LOCATION="<%= products_patchset_path %>" ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  
 
 orainventory_path=<%= orainventory_path %>

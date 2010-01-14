@@ -1,4 +1,4 @@
-#    database_server.pp - oracle database server software 9i/10g
+#    server.pp - oracle database server software 9i/10g
 #
 #    Copyright (C) 2009 Jeremy Baumont 
 #
@@ -15,9 +15,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-class oracle::database_server inherits
-oracle::server::database::enterprise  {
-    
+class oracle::server   {
 
-} # end of class oracle::database_server
+    include oracle::administrators
+    include oracle::system_packages
 
+} # end of class oracle::server
+
+class oracle::server::database inherits oracle::server {
+    include oracle::directories
+    include oracle::system_profile
+}
+
+class oracle::server::database::enterprise inherits oracle::server::database {
+    include oracle::software
+}

@@ -25,5 +25,17 @@ node basenode {
 
 node default inherits basenode{}
 
-node oracle_database_server inherits basenode {
+
+node oracle_basenode {
+    include oracle::administrators
+    include oracle::system_packages
+}
+
+node oracle_server inherits oracle_basenode {
+    include oracle::directories
+    include oracle::system_profile
+}
+
+node oracle_database_server inherits oracle_server {
+   include oracle::software 
 }

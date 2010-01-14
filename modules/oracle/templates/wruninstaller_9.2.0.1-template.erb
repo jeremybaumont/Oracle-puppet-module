@@ -3,6 +3,8 @@
 
 echo " Running the oracle silent install ./runInstaller -silent  -responseFile <%= responsefile_path %>  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\"  LOCATION_FOR_DISK2=\"<%= disk2_9201_path %>\"  LOCATION_FOR_DISK3=\"<%= disk3_9201_path %>\"  s_cfgtyperet=\"Software Only\" "
 
+cd <%= disk1_9201_path %>
+
 ./runInstaller -silent  -responseFile <%= responsefile_path %>  ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  LOCATION_FOR_DISK2="<%= disk2_9201_path %>"  LOCATION_FOR_DISK3="<%= disk3_9201_path %>"  s_cfgtyperet="Software Only"
 
 orainventory_path=<%= orainventory_path %>
@@ -51,6 +53,7 @@ while test_pad $oracle_install_log_path; do
         u=$(( u + 1 )); l=$(( l + 1 ))                                                                                                            
         if [ $l -eq $ANIM_LN ]; then l=0; fi                                                                                                      
         sleep $SLEEP                                                                                                                              
+        echo "Parsing log and sleeping $SLEEP..."
 done
 touch /var/opt/oracle/9.2.0.1_installed
 echo "The installation of Oracle9i 9.2.0.1 Database was successful."

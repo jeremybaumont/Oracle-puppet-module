@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-node 'jeremy-test.wanadoo.nl' inherits oracle_database_server {
+node 'jeremy-test.wanadoo.nl' {
     $architecture = "sparc32"
     $operatingsystem = "solaris"
 
