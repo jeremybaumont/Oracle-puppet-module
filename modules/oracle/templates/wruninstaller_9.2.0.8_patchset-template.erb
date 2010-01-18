@@ -1,59 +1,100 @@
 #!/usr/bin/bash 
 
+EXITCODE=1
 
-echo " Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  FROM_LOCATION="<%= products_patchset_path %>"  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\" " 
+# Log a message on the output and exit properly                                                                                                                                                             
+log_and_exit()                                                                                                                                                                                              
+{                                                                                                                                                                                                           
+    local type="$1"                                                                                                                                                                                         
+    shift                                                                                                                                                                                                   
+    local message="$*"                                                                                                                                                                                      
+    log $type $message                                                                                                                                                                                      
+    exit $EXITCODE                                                                                                                                                                                          
+}                                                                                                                                                                                                           
+                                                                                                                                                                                                            
+# Log a message on the output                                                                                                                                                                               
+log()                                                                                                                                                                                                       
+{                                                                                                                                                                                                           
+    local type="$1"                                                                                                                                                                                         
+    shift                                                                                                                                                                                                   
+    local message="$*"                                                                                                                                                                                      
+    local dataflags="+%Y.%m.%d,%H:%M:%S"                                                                                                                                                                    
+                                                                                                                                                                                                            
+    echo "[$type] - `date $dataflags` - $message"                                                                                                                                                           
+}  
+
+sleep 90
+
+log "INFO" "Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  FROM_LOCATION="<%= products_patchset_path %>"  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\" " 
 
 cd <%= disk1_9208_patchset_path %>
+log "INFO" "Current wokring directory: `pwd`" 
 
+log "INFO" "Stopping running processes in oracle home..."
+kill_isqlplus_cmd=`/usr/ucb/ps wwwaux | grep applications | grep -v grep |awk '{print $2}' |xargs -n 1 -i kill -9 {}`
+if [ $? -eq 0 ]; then
+    log "INFO" "Running processes in oracle home stopped !"
+else
+    log_and_exit "ERROR" "Could not stopped running processes in oracle home properly: ${kill_isqlplus_cmd}"
+fi
+
+log "INFO" "Stopping isqlplus..."
+kill_isqlplus_cmd=`/usr/ucb/ps wwwaux | grep applications | grep isqlplus |awk '{print $2}' |xargs -n 1 -i kill -9 {}`
+if [ $? -eq 0 ]; then
+    log "INFO" "isqlplus stopped !"
+else
+    log_and_exit "ERROR" "Could not stopped isqlplus properly: ${kill_isqlplus_cmd}"
+fi
+
+log "INFO" "Stopping oracle httpd server..."
+$ORACLE_HOME/Apache/Apache/bin/apachectl stop
+kill_httpd_cmd=`/usr/ucb/ps wwwaux | grep applications | grep httpd |awk '{print $2}' |xargs -n 1 -i kill -9 {}`
+if [ $? -eq 0 ]; then
+    log "INFO" "httpd stopped !"
+else
+    log_and_exit "ERROR" "Could not stopped httpd properly: ${kill_httpd_cmd}"
+fi
+
+
+log "INFO" "The runinstaller is starting..."
 ./runInstaller -silent -ignoreSysPrereqs  -responseFile <%= responsefile_patchset_path %> FROM_LOCATION="<%= products_patchset_path %>" ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  
+log "INFO" "The runinstaller is started..."  
 
+sleep 120
 orainventory_path=<%= orainventory_path %>
 oracle_install_log=`ls -lrt ${orainventory_path}/logs |grep oraInstall | grep out | tail -1 | awk '{print $9}'`
 oracle_install_log_path="${orainventory_path}/logs/${oracle_install_log}"
-
-function test_pad()                                                                                                                               
-{                                                                                                                                                 
-        file=$1
-
-        sleep 120
-        grep 'was successful' $file
-        if [ $? -eq 1 ]; then return 0; fi
-        
-        return 1                                                                                                                                  
-} 
+#oracle_install_log_path=`find ${oracinventory_path}/logs -type f -print| xargs -n 1 -i egrep -l "TOPLEVEL_COMPONENT.*9.2.0.8" {}`
 
 
-function reverse()                                                                                                                                
-{                                                                                                                                                 
-        string=$1                                                                                                                                 
-        len=$(echo -n $string | wc -c)                                                                                                            
-        while test $len -gt 0                                                                                                                     
-        do                                                                                                                                        
-                rev=$rev$(echo $string | cut -c $len)                                                                                             
-                len=$(( len - 1 ))                                                                                                                
-        done                                                                                                                                      
-        echo $rev                                                                                                                                 
-}                                                                                                                                                 
-                                                                                                                                                  
-ANIM="//--\\||"                                                                                                                                   
-PAD="                                                                  "                                                                          
-SLEEP="0.1"                                                                                                                                       
-                                                                                                                                                  
-ANIM_L="$(reverse $ANIM)"                                                                                                                         
-PAD_LN=${#PAD}                                                                                                                                    
-ANIM_LN=${#ANIM}                                                                                                                                  
-u=0; re=0; l=0                                                                                                                                    
-                                                                                                                                                  
-echo "Parsing log: ${oracle_install_log_path} for successful install message..."
-while test_pad $oracle_install_log_path; do                                                                                                                                
-        if [ $re -eq 1 ]; then L=$ANIM_L; else L=$ANIM; fi                                                                                        
-        if [ $re -eq 1 ]; then p=$(( $PAD_LN - $u )); else p=$u; fi                                                                               
-        echo -ne "${PAD:0:$p} ${L:$l:1} ${PAD:$p:$PAD_LN} \r"                                                                                     
-        if [ $u -eq $PAD_LN ]; then u=0; if [ $re -eq 1 ]; then re=0; else re=1; fi; fi                                                           
-        u=$(( u + 1 )); l=$(( l + 1 ))                                                                                                            
-        if [ $l -eq $ANIM_LN ]; then l=0; fi                                                                                                      
-        sleep $SLEEP                                                                                                                              
-done
-touch /var/opt/oracle/9.2.0.8_patchset_installed
-echo "The installation of Oracle9i patchset 9.2.0.8 Database was successful."
-exit 0
+if [ -e "${oracle_install_log_path}" ]; then                                                                                                                                                                
+    log "INFO" "Found an oracle install log file: ${oracle_install_log_path}"                                                                                                                               
+else                                                                                                                                                                                                        
+    log_and_exit "ERROR" "Could not find an oracle install log file"                                                                                                                                        
+fi                                                                                                                                                                                                          
+                                                                                                                                                                                                            
+                                                                                                                                                                                                            
+test_pad()                                                                                                                                                                                                  
+{                                                                                                                                                                                                           
+        local file=$1                                                                                                                                                                                                                                                                                                                                                                                                   
+        sleep 5                                                                                                                                                                                             
+        grep 'was successful' $file                                                                                                                                                                         
+        res=$?
+        echo "result command value: $res" 
+        if ((  $res == 0  )); then
+                EXITCODE=0
+                touch /var/opt/oracle/9.2.0.8_patchset_installed
+                log_and_exit "INFO" "You have installed 9.2.0.8 database server patch software"
+        else                                                                                                                                                                                                
+                log "INFO" "Not yet successful..."                                                                                                                                                          
+        fi                                                                                                                                                                                                  
+                                                                                                                                                                                                            
+        return 1                                                                                                                                                                                            
+}                                                                                                                                                                                                           
+                                                                                                                                                                                                            
+while true; do                                                                                                                                                                                              
+        test_pad ${oracle_install_log_path}                                                                                                                                                                 
+        sleep 5                                                                                                                                                                                             
+done                                                                                                                                                                                                        
+                                                                                                                                                                                                            
+exit 0  

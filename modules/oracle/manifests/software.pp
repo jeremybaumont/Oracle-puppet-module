@@ -66,7 +66,21 @@ class oracle::software {
                                     environment => ["DISPLAY=p-reduck.euronet.nl:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
-                                    require => File ["wruninstaller_9.2.0.1.sh"],
+                                    require => [ 
+                                        File ["wruninstaller_9.2.0.1.sh"],
+                                        File["var_opt_oracle"],
+                                        File["oracle_home"],
+                                        File["oracle_version"],
+                                        File["oracle_major_version"],
+                                        File["oracle_base"],
+                                        File["/users/oracle/.bash_profile"],
+                                        File["/var/opt/oracle/oraInst.loc"],
+                                        File["/users/oracle/.bashrc"],
+                                        File["/users/oracle"],
+                                        User["oracle"],
+                                        Group["dba"],
+                                        Group["oinstall"]
+                                        ],
                                     timeout => "-1",
                                 }
 
@@ -115,8 +129,20 @@ class oracle::software {
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [
-                                                File ["wruninstaller_9.2.0.8_patchset.sh"],
-                                                Exec ["runinstaller-oui"]
+                                        File ["wruninstaller_9.2.0.8_patchset.sh"],
+                                        Exec ["runinstaller-oui"],
+                                        File["var_opt_oracle"],
+                                        File["oracle_home"],
+                                        File["oracle_version"],
+                                        File["oracle_major_version"],
+                                        File["oracle_base"],
+                                        File["/users/oracle/.bash_profile"],
+                                        File["/var/opt/oracle/oraInst.loc"],
+                                        File["/users/oracle/.bashrc"],
+                                        File["/users/oracle"],
+                                        User["oracle"],
+                                        Group["dba"],
+                                        Group["oinstall"]
                                                 ],
                                     timeout => "-1",
                                 }

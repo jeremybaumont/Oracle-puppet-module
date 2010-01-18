@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 class oracle::database_server inherits
-oracle::server::database::enterprise  {
-    
-
+    oracle::server::database::enterprise  {
 } # end of class oracle::database_server
 
