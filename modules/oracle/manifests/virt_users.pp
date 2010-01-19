@@ -35,22 +35,22 @@ class oracle::virt_users  {
             ensure => directory,
             mode => 0750, owner => oracle, group => dba;
         "/users/oracle/.bashrc":
-            source => "$fileserver/users/oracle/.bashrc",
+            source => "puppet:/oracle/users/oracle/.bashrc",
             ensure => present, replace => true,
             mode => 0640, owner => oracle, group => dba;
         "/users/oracle/.bash_profile":
-            source => "$fileserver/users/oracle/.bash_profile",
+            source => "puppet:/oracle/users/oracle/.bash_profile",
             ensure => present, replace => true,
             mode => 0640, owner => oracle, group => dba;
         "/users/oracle/.ssh":
             ensure => directory,
             mode => 0700, owner => oracle, group => dba;
         "/users/oracle/.ssh/authorized_keys":
-            source => "$fileserver/users/oracle/.ssh/authorized_keys",
+            source => "puppet:/oracle/users/oracle/.ssh/authorized_keys",
             ensure => present, replace => true,
             mode => 0600, owner => oracle, group => dba;
 #        "/users/oracle/.ssh/config":
-#            source => "$fileserver/users/oracle/.ssh/config",
+#            source => "puppet:/oracle/users/oracle/.ssh/config",
 #            mode => 0600, owner => oracle, group => dba;
     }
 }

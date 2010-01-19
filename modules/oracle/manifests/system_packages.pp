@@ -65,6 +65,6 @@ class oracle::system_packages {
     notify {"INFO - the architecture is ${oracle_major_version}": }                                                                                                                      
     notify {"INFO - the list of packages required is ${system_packages}": }                                                                                                              
                                                                                                                                                                                                             
-    package { $ystem_packages: ensure => installed, provider => $sun_provider } 
+    package { $system_packages: ensure => installed, provider => $sun_provider } 
 
 }# end of class oracle::system_packages

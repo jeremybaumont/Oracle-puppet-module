@@ -26,3 +26,15 @@ node 'jeremy-test.wanadoo.nl' {
 
     include oracle::database_server
 }
+
+node 'test1.wanadoo.nl' {
+    $architecture = "sparc32"
+    $operatingsystem = "solaris"
+
+    $oracle_major_version = "9i"
+    $oracle_version = "9.2.0.8"
+    $oracle_patch_version = "earth"
+    $oracle_sid = "PLGRND"
+
+    include oracle::database_server
+}
