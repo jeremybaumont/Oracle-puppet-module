@@ -15,6 +15,46 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+
+# puppet manages the following directories, they may not following OFA
+# but feel free to modify at your convenience
+#
+# ORACLE_BASE
+# /opt/app/oracle
+#
+# ORACLE_HOME
+# /opt/app/oracle/product/11.2.0/earth
+#
+# Inventory
+# /opt/app/oracle/oraInventory
+#
+# Data Directory
+# /ora06/dbsid/dbf/
+# /ora07/dbsid/dbf/
+#
+# Control Files
+# /ora01/dbsid/ctl
+# /ora02/dbsid/ctl
+# /ora03/dbsid/ctl
+#
+# Redo Logs
+# /ora01/dbsid/redo
+# /ora02/dbsid/redo
+# /ora03/dbsid/redo
+#
+# Archives
+# /ora04/dbsid/arch/
+#
+# Dumps
+# /logs/oracle/diag/rdbms/db_name/db_sid/udump....
+#
+# Flashback
+# /flash_recovery_area/dbsid
+#
+# RMAN
+# /rman-backup
+
 class oracle::directories {
 
     define oracle_dir ( $path, $ensure, $owner, $group, $mode ) {
@@ -48,19 +88,9 @@ class oracle::directories {
             ensure => directory,
             owner => "root",
             group => "root",
-            before => File["oracle_logs"],
             mode => 755
     }
 
-    oracle_dir {
-        "/data":
-            path => "/data",
-            ensure => directory,
-            owner => "root",
-            group => "root",
-            before => File["oracle_data"],
-            mode => 755
-    }
 
     oracle_dir {
         "var_opt_oracle":
@@ -73,8 +103,8 @@ class oracle::directories {
     }
 
     oracle_dir {
-        "/opt/applications":
-            path => "/opt/applications",
+        "/opt/app":
+            path => "/opt/app",
             ensure => directory,
             owner => "root",
             group => "root",
@@ -82,7 +112,7 @@ class oracle::directories {
             mode => 755
     }
     
-    $oracle_base_path = "/opt/applications/oracle"
+    $oracle_base_path = "/opt/app/oracle"
     $orainventory_path = "$oracle_base_path/oraInventory"
     file {
         "/var/opt/oracle/oraInst.loc":
@@ -102,22 +132,12 @@ class oracle::directories {
         group => "oinstall",
         before => [
                     File["oracle_home"],
-                    File["oracle_major_version"],
-                    File["oracle_version"]
+                    File["oracle_major_version"]
                 ],
-        require => File["/opt/applications"],
+        require => File["/opt/app"],
         mode => 755 
     }
 
-#    $oracle_inventory_path = "${oracle_base_path}/oraInventory"
-#    oracle_dir {
-#        "oracle_inventory":
-#            path => $oracle_inventory_path,
-#            ensure => directory,
-#            owner => "oracle",
-#            group => "oinstall",
-#            mode => 775
-#    }
 
     oracle_dir {
         "oracle_major_version":
@@ -128,26 +148,12 @@ class oracle::directories {
         require => File["oracle_base"],
         before => [
                     File["oracle_home"],
-                    File["oracle_version"]
                 ],
         mode => 755 
     }
 
-    oracle_dir {
-        "oracle_version":
-        path => "${oracle_base_path}/${oracle_major_version}/${oracle_version}",
-        ensure => directory,
-        owner => "oracle",
-        group => "oinstall",
-        require => [
-                    File["oracle_base"],
-                    File["oracle_major_version"]
-                ],
-        before => File["oracle_home"] ,
-        mode => 755 
-    }
 
-    $oracle_home_path = "${oracle_base_path}/${oracle_major_version}/${oracle_version}/${oracle_patch_version}"
+    $oracle_home_path = "${oracle_base_path}/${oracle_major_version}/${oracle_patch_version}"
     oracle_dir { 
         "oracle_home":
         path => "${oracle_home_path}",  
@@ -157,97 +163,331 @@ class oracle::directories {
         require => [
                     File["oracle_base"],
                     File["oracle_major_version"],
-                    File["oracle_version"]
                 ],
         mode => 755
     }
 
-    oracle_dir {
-        "oracle_data":
-        path => "/data/oracle",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["/data"],
-        mode => 755
-    }
-    
-    $oracle_oralogs = "/data/oracle/oralogs"
-    oracle_dir {
-        "oracle_oralogs":
-        path => "${oracle_oralogs}",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_data"],
-        mode => 755
-    }
+
+    $oracle_ora01 = "/ora01"
+    $oracle_ora02 = "/ora02"
+    $oracle_ora03 = "/ora03"
+    $oracle_ora04 = "/ora04"
+    $oracle_ora06 = "/ora06"
+    $oracle_ora07 = "/ora07"
 
     oracle_dir {
-        "oracle_oralogs_${oracle_sid}":
-        path => "${oracle_oralogs}/${oracle_sid}",
+        "oracle_ora01":
+        path => "${oracle_ora01}",
         ensure => directory,
         owner => "oracle",
         group => "dba",
-        require => File["oracle_oralogs"],
         before => [
-                File["oracle_oralogs_redo"],
-                File["oracle_oralogs_ctl"],
-                File["oracle_oralogs_arch"]
-            ],
+                    File["oracle_ora01_dbsid"],
+                    File["oracle_ora01_dbf"],
+                ],
         mode => 755
-    }
-
-    oracle_dir{
-        "oracle_oralogs_redo":
-        path => "${oracle_oralogs}/${oracle_sid}/redo",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_oralogs_${oracle_sid}"],
-        mode => 755
-    }
-
-    oracle_dir{
-        "oracle_oralogs_ctl":
-        path => "${oracle_oralogs}/${oracle_sid}/ctl",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_oralogs_${oracle_sid}"],
-        mode => 755
-    }
-
-    oracle_dir{
-        "oracle_oralogs_arch":
-        path => "${oracle_oralogs}/${oracle_sid}/arch",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_oralogs_${oracle_sid}"],
-        mode => 755
-    }
+    }       
 
     oracle_dir {
-        "oracle_oradata":
-        path => "/data/oracle/oradata",
+        "oracle_ora02":
+        path => "${oracle_ora02}",
         ensure => directory,
         owner => "oracle",
         group => "dba",
-        require => File["oracle_data"],
-        before => File["oracle_oradata_${oracle_sid}"],
+        before => [
+                    File["oracle_ora02_dbsid"],
+                    File["oracle_ora02_dbf"],
+                ],
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora03":
+        path => "${oracle_ora03}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        before => [
+                    File["oracle_ora03_dbsid"],
+                    File["oracle_ora03_dbf"],
+                ],
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora04":
+        path => "${oracle_ora04}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        before => [
+                    File["oracle_ora04_dbsid"],
+                    File["oracle_ora04_dbf"],
+                ],
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora06":
+        path => "${oracle_ora06}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        before => [
+                    File["oracle_ora06_dbsid"],
+                    File["oracle_ora06_dbf"],
+                ],
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora07":
+        path => "${oracle_ora07}",
+        ensure => directory,
+        owner => "oracle",
+        group => "dba",
+        before => [
+                    File["oracle_ora07_dbsid"],
+                    File["oracle_ora07_dbf"],
+                ],
+        mode => 755
+    }       
+
+
+    oracle_dir {
+        "oracle_ora01_dbsid":
+        path => "${oracle_ora01}/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        require => File["oracle_ora01"],
+        before => File["oracle_ora01_dbf"],
+        group => "dba",
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora02_dbsid":
+        path => "${oracle_ora02}/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        require => File["oracle_ora02"],
+        before => File["oracle_ora02_dbf"],
+        group => "dba",
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora03_dbsid":
+        path => "${oracle_ora03}/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        require => File["oracle_ora03"],
+        before => File["oracle_ora03_dbf"],
+        group => "dba",
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora04_dbsid":
+        path => "${oracle_ora04}/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        require => File["oracle_ora04"],
+        before => File["oracle_ora04_dbf"],
+        group => "dba",
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora06_dbsid":
+        path => "${oracle_ora06}/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        require => File["oracle_ora06"],
+        before => File["oracle_ora06_dbf"],
+        group => "dba",
+        mode => 755
+    }       
+
+    oracle_dir {
+        "oracle_ora07_dbsid":
+        path => "${oracle_ora07}/${oracle_sid}",
+        ensure => directory,
+        owner => "oracle",
+        require => File["oracle_ora07"],
+        before => File["oracle_ora07_dbf"],
+        group => "dba",
+        mode => 755
+    }       
+
+    oracle_dir{
+        "oracle_ora01_dbf":
+        path => "${oracle_ora01}/${oracle_sid}/dbf",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora01"],
+                    File["oracle_ora01_dbsid"],
+                ],
+        group => "dba",
         mode => 755
     }
 
-    oracle_dir {
-        "oracle_oradata_${oracle_sid}":
-        path => "/data/oracle/oradata/${oracle_sid}",
+    oracle_dir{
+        "oracle_ora02_dbf":
+        path => "${oracle_ora02}/${oracle_sid}/dbf",
         ensure => directory,
         owner => "oracle",
+        require => [
+                    File["oracle_ora02"],
+                    File["oracle_ora02_dbsid"],
+                ],
         group => "dba",
-        require => File["oracle_oradata"],
         mode => 755
+    }
 
+    oracle_dir{
+        "oracle_ora03_dbf":
+        path => "${oracle_ora03}/${oracle_sid}/dbf",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora03"],
+                    File["oracle_ora03_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+
+    oracle_dir{
+        "oracle_ora04_dbf":
+        path => "${oracle_ora04}/${oracle_sid}/dbf",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora04"],
+                    File["oracle_ora04_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora06_dbf":
+        path => "${oracle_ora06}/${oracle_sid}/dbf",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora06"],
+                    File["oracle_ora06_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora07_dbf":
+        path => "${oracle_ora07}/${oracle_sid}/dbf",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora07"],
+                    File["oracle_ora07_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora01_ctl":
+        path => "${oracle_ora01}/${oracle_sid}/ctl",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora01"],
+                    File["oracle_ora01_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora02_ctl":
+        path => "${oracle_ora02}/${oracle_sid}/ctl",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora02"],
+                    File["oracle_ora02_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora03_ctl":
+        path => "${oracle_ora03}/${oracle_sid}/ctl",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora03"],
+                    File["oracle_ora03_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora01_redo":
+        path => "${oracle_ora01}/${oracle_sid}/redo",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora01"],
+                    File["oracle_ora01_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora02_redo":
+        path => "${oracle_ora02}/${oracle_sid}/redo",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora02"],
+                    File["oracle_ora02_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora03_redo":
+        path => "${oracle_ora03}/${oracle_sid}/redo",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora03"],
+                    File["oracle_ora03_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
+    }
+
+    oracle_dir{
+        "oracle_ora04_arch":
+        path => "${oracle_ora04}/${oracle_sid}/arch",
+        ensure => directory,
+        owner => "oracle",
+        require => [
+                    File["oracle_ora04"],
+                    File["oracle_ora04_dbsid"],
+                ],
+        group => "dba",
+        mode => 755
     }
 
     $oracle_logs = "/logs/oracle"
@@ -258,99 +498,6 @@ class oracle::directories {
         owner => "oracle",
         group => "dba",
         require => File["/logs"],
-        mode => 755,
-        before => [
-                File["oracle_dumps"],
-                File["oracle_user_dumps"],
-                File["oracle_background_dumps"],
-                File["oracle_audit_dumps"],
-                File["oracle_core_dumps"]
-                ]
-    }
-
-    $oracle_dumps = "${oracle_logs}/oradumps"
-    oracle_dir {
-        "oracle_dumps":
-        path => "${oracle_dumps}",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_logs"],
-        before => [
-                File["oracle_user_dumps"],
-                File["oracle_background_dumps"],
-                File["oracle_audit_dumps"],
-                File["oracle_core_dumps"],
-                File["oracle_pfile_dir"],
-                File["oracle_dumps_${oracle_sid}"]
-                ] ,      
-        mode => 755
-    }
-
-    oracle_dir {
-        "oracle_dumps_${oracle_sid}":
-        path => "/logs/oracle/oradumps/${oracle_sid}",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_dumps"],
-        before => [
-                File["oracle_user_dumps"],
-                File["oracle_background_dumps"],
-                File["oracle_audit_dumps"],
-                File["oracle_core_dumps"],
-                File["oracle_pfile_dir"]
-                ],
-        mode => 755       
-    }
-
-    oracle_dir {
-        "oracle_user_dumps":
-        path => "/logs/oracle/oradumps/${oracle_sid}/udump",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_dumps_${oracle_sid}"],
-        mode => 755
-    }
-
-    oracle_dir {
-        "oracle_background_dumps":
-        path => "/logs/oracle/oradumps/${oracle_sid}/bdump",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_dumps_${oracle_sid}"],
-        mode => 755
-    }
-
-    oracle_dir {
-        "oracle_audit_dumps":
-        path => "/logs/oracle/oradumps/${oracle_sid}/adump",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_dumps_${oracle_sid}"],
-        mode => 755
-    }
-    
-    oracle_dir {
-        "oracle_core_dumps":
-        path => "/logs/oracle/oradumps/${oracle_sid}/cdump",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_dumps_${oracle_sid}"],
-        mode => 755
-    }
-
-    oracle_dir {
-        "oracle_pfile_dir":
-        path => "/logs/oracle/oradumps/${oracle_sid}/pfile",
-        ensure => directory,
-        owner => "oracle",
-        group => "dba",
-        require => File["oracle_dumps_${oracle_sid}"],
         mode => 755
     }
 
