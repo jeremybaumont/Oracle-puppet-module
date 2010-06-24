@@ -1,0 +1,38 @@
+#!/usr/bin/bash 
+
+EXITCODE=1
+
+# Log a message on the output and exit properly                                                                                                                                                             
+log_and_exit()                                                                                                                                                                                              
+{                                                                                                                                                                                                           
+    local type="$1"                                                                                                                                                                                         
+    shift                                                                                                                                                                                                   
+    local message="$*"                                                                                                                                                                                      
+    log $type $message                                                                                                                                                                                      
+    exit $EXITCODE                                                                                                                                                                                          
+}                                                                                                                                                                                                           
+                                                                                                                                                                                                            
+# Log a message on the output                                                                                                                                                                               
+log()                                                                                                                                                                                                       
+{                                                                                                                                                                                                           
+    local type="$1"                                                                                                                                                                                         
+    shift                                                                                                                                                                                                   
+    local message="$*"                                                                                                                                                                                      
+    local dataflags="+%Y.%m.%d,%H:%M:%S"                                                                                                                                                                    
+                                                                                                                                                                                                            
+    echo "[$type] - `date $dataflags` - $message"                                                                                                                                                           
+}    
+
+log "INFO" "Stopping processes using the oracle home directories."
+
+
+cd <%= current_oracle_home %>/Apache/Apache/bin/
+./apachectl stop
+
+cd <%= current_oracle_home %>/bin/
+,/tnslsnr stop
+
+log "INFO" "Processes using the oracle home directories should be stop"
+
+
+exit 0

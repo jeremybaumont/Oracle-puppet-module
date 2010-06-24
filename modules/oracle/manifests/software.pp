@@ -22,6 +22,8 @@
 ###
 class oracle::software {
 
+    # You need the software cd/dvd/disks from Oracle downloaded
+    # somewhere on the local machine
     $oracle_base_software = "/opt/applications/repository/oracle/database_server"
 
     define install_oracle_database_server_software($oracle_version) {
@@ -29,7 +31,7 @@ class oracle::software {
             default: { err ("unknown operation system value ${operatingsystem}") }
             solaris: {
                         case $oracle_version {
-                            default: {err("unknown oracle version value ${oracle_version}") }
+                            default: {err("unknown oracle version value ${oracle_version} or not yet implemented") }
                             "9.2.0.8": {
                                 $disk1_9201_path = "${oracle_base_software}/${architecture}/9.2.0.1/disk1" 
                                 $disk2_9201_path = "${oracle_base_software}/${architecture}/9.2.0.1/disk2" 
@@ -40,8 +42,29 @@ class oracle::software {
                                 $orainventory_path = "$current_oracle_base/oraInventory"
                                 $tmp_dir = "/var/tmp"
 
+
+                                # start an x server, required for the
+                                # oracle installer
+                                exec {
+                                    "start_vfb":
+                                    command => "start_vfb.sh",
+                                    path => ["/users/oracle/bin","/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", 
+                                            "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
+                                    cwd => "/users/oracle/bin",
+                                    group => "root",
+                                    user => "root",
+                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    logoutput => true,
+                                    returns => [0,1],
+                                    require => [ 
+                                        File["/users/oracle/bin/"],
+                                        File["/users/oracle/bin/start_vfb.sh"]
+                                    ],
+                                    timeout => "-1",
+                                }
+
                                 # build a script to run silent installer
-                                # of 11.2.0.1 Disk 1 Oracle database
+                                # of 9.2.0.1 Disk 1 Oracle database
                                 # server software enterprise edition
                                 file{
                                     "wruninstaller_9.2.0.1.sh":
@@ -58,16 +81,18 @@ class oracle::software {
                                 exec {
                                     "runinstaller-oui":
                                     command => "wruninstaller_9.2.0.1.sh > ${tmp_dir}/runinstaller-oui_9.2.0.1.log",
-                                    path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
+                                    path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", 
+                                            "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
                                     cwd => "${tmp_dir}",
                                     creates => "/var/opt/oracle/9.2.0.1_installed",
                                     group => "oinstall",
                                     user => "oracle",
-                                    environment => ["DISPLAY=p-reduck.euronet.nl:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [ 
                                         File ["wruninstaller_9.2.0.1.sh"],
+                                        Exec ["start_vfb"],
                                         File["var_opt_oracle"],
                                         File["oracle_home"],
                                         File["oracle_base"],
@@ -82,6 +107,58 @@ class oracle::software {
                                     timeout => "-1",
                                 }
 
+                                # before installing the 9.2.0.8 patchset
+                                # we need to shutdown all processes
+                                # using the oracle home directories
+                                file {
+                                    "stop_oracle_home_proc.sh":
+                                    name => "${tmp_dir}/stop_oracle_home_proc.sh",
+                                    content => template("oracle/stop_oracle_home_proc.erb"),
+                                    mode => 755,
+                                    owner =>"oracle",
+                                    group => "oinstall", 
+
+                                }
+    
+                                exec {
+                                    "stop_oracle_home_proc":
+                                    command => "stop_oracle_home_proc.sh > ${tmp_dir}/stop_oracle_home_proc.log",
+                                    path => ["/usr/bin", 
+                                            "/usr/sbin", 
+                                            ".", 
+                                            "/opt/csw/bin", 
+                                            "/usr/sbin", 
+                                            "/usr/bin", 
+                                            "/usr/dt/bin", 
+                                            "/usr/openwin/bin", 
+                                            "/usr/ccs/bin",  
+                                            "/usr/sfw/bin",
+                                            "/usr/perl5/5.8.4/bin", 
+                                            "/opt/SUNWspro/bin"],
+                                    cwd => "${tmp_dir}",
+                                    group => "dba",
+                                    user => "oracle",
+                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    logoutput => true,
+                                    returns => [0,1],
+                                    require => [
+                                        Exec ["runinstaller-oui"],
+                                        File ["stop_oracle_home_proc.sh"],
+                                        File["var_opt_oracle"],
+                                        File["oracle_home"],
+                                        File["oracle_base"],
+                                        File["/users/oracle/.bash_profile"],
+                                        File["/var/opt/oracle/oraInst.loc"],
+                                        File["/users/oracle/.bashrc"],
+                                        File["/users/oracle"],
+                                        User["oracle"],
+                                        Group["dba"],
+                                        Group["oinstall"]
+                                                ],
+                                    timeout => "-1",
+                                    
+                                }
+                                
                                 
                                 $disk1_9208_patchset_path = "${oracle_base_software}/${architecture}/patchset_9.2.0.8/Disk1" 
                                 $responsefile_patchset_path = "${disk1_9208_patchset_path}/response/patchset.rsp"
@@ -123,12 +200,13 @@ class oracle::software {
                                     creates => "/var/opt/oracle/9.2.0.8_patchset_installed",
                                     group => "oinstall",
                                     user => "oracle",
-                                    environment => ["DISPLAY=p-reduck.euronet.nl:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [
                                         File ["wruninstaller_9.2.0.8_patchset.sh"],
                                         Exec ["runinstaller-oui"],
+                                        Exec ["stop_oracle_home_proc"],
                                         File["var_opt_oracle"],
                                         File["oracle_home"],
                                         File["oracle_base"],
@@ -143,6 +221,26 @@ class oracle::software {
                                     timeout => "-1",
                                 }
 
+                                # stop  x server, required for the
+                                # oracle installer
+                                exec {
+                                    "stop_vfb":
+                                    command => "stop_vfb.sh",
+                                    path => ["/users/oracle/bin","/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", "/usr/dt/bin", 
+                                            "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
+                                    cwd => "/users/oracle/bin",
+                                    group => "root",
+                                    user => "root",
+                                    environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
+                                    logoutput => true,
+                                    returns => [0,1],
+                                    require => [ 
+                                        File["/users/oracle/bin/"],
+                                        Exec["runinstaller-patchset-oui"],
+                                        File["/users/oracle/bin/stop_vfb.sh"]
+                                    ],
+                                    timeout => "-1",
+                                }
 
                             }
                             "10.2.0.4": {

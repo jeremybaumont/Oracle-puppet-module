@@ -52,24 +52,14 @@ ORACLE_BASE=<%= oracle_base_path %>
 ORACLE_VERSION=<%= oracle_version %>
 ORACLE_HOME=<%= oracle_home_path %>
 ORACLE_SID=<%= oracle_sid %>
-# optional oracle unix environmen variables to simplify code review
-ORACLE_DUMPS=<%= oracle_dumps %>
-ORACLE_ORALOGS=<%= oracle_oralogs %>
 
 export ORACLE_BASE ORACLE_VERSION ORACLE_HOME ORACLE_SID
 
 # update lib path and command path
-export PATH=$ORACLE_HOME/bin:$PATH
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$HOME/bin:$PATH
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH
 
 # oracle alias to speed up productivity
-alias alert='$HOME/dba_alertlog  ${ORACLE_DUMPS}/$ORACLE_SID/bdump/alert_$ORACLE_SID.log | tail -200  | less'
-alias arch='cd ${ORACLE_ORALOGS}/$ORACLE_SID/arch && ls -lrt'
-alias bdump='cd ${ORACLE_DUMPS}/$ORACLE_SID/bdump && ls -lrt'
-alias udump='cd ${ORACLE_DUMPS}/$ORACLE_SID/udump && ls -lrt'
-alias cdump='cd ${ORACLE_DUMPS}/$ORACLE_SID/cdump && ls -lrt'
-alias adump='cd ${ORACLE_DUMPS}/$ORACLE_SID/adump && ls -lrt'
-alias pfile='cd ${ORACLE_DUMPS}/$ORACLE_SID/pfile && ls -lrt'
 alias rm='rm -i'
 alias sid='env|grep ORACLE_SID'
 alias i='inforacle'
@@ -80,7 +70,7 @@ inforacle
 # set up X display and term for screen
 # kind of magic here but the silent installer need
 # to make an x connection in order to load oui java classes
-DISPLAY=p-reduck.euronet.nl:0.0
+DISPLAY=:0.0
 TERM=vt220
 export DISPLAY TERM
 

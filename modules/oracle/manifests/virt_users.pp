@@ -53,4 +53,20 @@ class oracle::virt_users  {
 #            source => "puppet:/oracle/users/oracle/.ssh/config",
 #            mode => 0600, owner => oracle, group => dba;
     }
+
+        # unix scripts 
+        file {
+        "/users/oracle/bin/":
+            ensure => directory,
+            mode => 0750, owner => oracle, group => dba;
+        "/users/oracle/bin/start_vfb.sh":
+            source => "puppet:/oracle/users/oracle/bin/start_vfb.sh",
+            ensure => present, replace => true,
+            mode => 0755, owner => oracle, group => dba;
+        "/users/oracle/bin/stop_vfb.sh":
+            source => "puppet:/oracle/users/oracle/bin/stop_vfb.sh",
+            ensure => present, replace => true,
+            mode => 0755, owner => oracle, group => dba;
+    }
+
 }
