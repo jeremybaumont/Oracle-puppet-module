@@ -132,20 +132,37 @@ class oracle::directories {
         group => "oinstall",
         before => [
                     File["oracle_home"],
-                    File["oracle_major_version"]
+                    File["oracle_major_version"],
+                    File["oracle_product"]
                 ],
         require => File["/opt/app"],
         mode => 755 
     }
 
-
     oracle_dir {
-        "oracle_major_version":
-        path => "${oracle_base_path}/${oracle_major_version}",
+        "oracle_product":
+        path => "${oracle_base_path}/product",
         ensure => directory,
         owner => "oracle",
         group => "oinstall",
         require => File["oracle_base"],
+        before => [
+                    File["oracle_home"],
+                    File["oracle_major_version"],
+                ],
+    }
+
+
+    oracle_dir {
+        "oracle_major_version":
+        path => "${oracle_base_path}/product/${oracle_major_version}",
+        ensure => directory,
+        owner => "oracle",
+        group => "oinstall",
+        require => [ 
+                    File["oracle_base"],
+                    File["oracle_product"]
+                ],
         before => [
                     File["oracle_home"],
                 ],
@@ -153,7 +170,7 @@ class oracle::directories {
     }
 
 
-    $oracle_home_path = "${oracle_base_path}/${oracle_major_version}/${oracle_patch_version}"
+    $oracle_home_path = "${oracle_base_path}/product/${oracle_major_version}/${oracle_patch_version}"
     oracle_dir { 
         "oracle_home":
         path => "${oracle_home_path}",  
