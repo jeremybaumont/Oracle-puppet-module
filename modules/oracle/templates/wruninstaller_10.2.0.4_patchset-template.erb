@@ -25,9 +25,9 @@ log()
 
 sleep 90
 
-log "INFO" "Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  FROM_LOCATION="<%= products_patchset_path %>"  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\" " 
+log "INFO" "Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\" n_configurationOption=3 " 
 
-cd <%= disk1_9208_patchset_path %>
+cd <%= disk1_10204_patchset_path %>
 log "INFO" "Current wokring directory: `pwd`" 
 
 log "INFO" "Stopping running processes in oracle home..."
@@ -57,14 +57,13 @@ fi
 
 
 log "INFO" "The runinstaller is starting..."
-./runInstaller -silent -ignoreSysPrereqs  -responseFile <%= responsefile_patchset_path %> FROM_LOCATION="<%= products_patchset_path %>" ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  
+./runInstaller -silent -ignoreSysPrereqs  -responseFile <%= responsefile_patchset_path %>  ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"   n_configurationOption=3  
 log "INFO" "The runinstaller is started..."  
 
 sleep 120
 orainventory_path=<%= orainventory_path %>
 oracle_install_log=`ls -lrt ${orainventory_path}/logs |grep oraInstall | grep out | tail -1 | awk '{print $9}'`
 oracle_install_log_path="${orainventory_path}/logs/${oracle_install_log}"
-#oracle_install_log_path=`find ${oracinventory_path}/logs -type f -print| xargs -n 1 -i egrep -l "TOPLEVEL_COMPONENT.*9.2.0.8" {}`
 
 
 if [ -e "${oracle_install_log_path}" ]; then                                                                                                                                                                
@@ -72,23 +71,24 @@ if [ -e "${oracle_install_log_path}" ]; then
 else                                                                                                                                                                                                        
     log_and_exit "ERROR" "Could not find an oracle install log file"                                                                                                                                        
 fi
+
 test_pad()
 {
 local file=$1
 sleep 5
 grep 'was successful' $file
-if ((  $? == 0  )); then 
-    EXITCODE=0 
-    touch /var/opt/oracle/9.2.0.8_patchset_installed 
-    log_and_exit "INFO" "You have installed 9.2.0.8 database server patch software" 
-else 
+if ((  $? == 0  )); then
+    EXITCODE=0
+    touch /var/opt/oracle/10.2.0.4_patchset_installed
+    log_and_exit "INFO" "You have installed 10.2.0.4 database server patch software"
+else
     log "INFO" "Not yet successful..."
 fi
 return 1
 }
 
 while true; do
-        test_pad ${oracle_install_log_path} 
-        sleep 5
-done                                                                                                                                                                                                        
+    test_pad ${oracle_install_log_path}
+    sleep 5 
+done
 exit 0  

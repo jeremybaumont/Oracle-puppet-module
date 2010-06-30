@@ -21,8 +21,8 @@ class oracle::system_packages {
     case $operatingsystem {                                                                                                                                                                                 
         "solaris": {                                                                                                                                                                                        
             $sun_provider = "sun"                                                                                                                                                                           
-            case $oracle_major_version {                                                                                                                                                                    
-                "10g": {                                                                                                                                                                                    
+            case $oracle_version {                                                                                                                                                                    
+                "10.2.0.4": {                                                                                                                                                                                    
                     case $architecture {                                                                                                                                                                    
                         "sparc64": {                                                                                                                                                                        
                             $system_packages = ["SUNWarc", "SUNWbtool", "SUNWhea", "SUNWlibm", "SUNWlibms", "SUNWsprot", "SUNWtoo", "SUNWi1of", "SUNWi1cs", "SUNWi15cs", "SUNWxwfnt", "SUNWsprox"]          
@@ -36,7 +36,7 @@ class oracle::system_packages {
                         }                                                                                                                                                                                   
                     }                                                                                                                                                                                       
                 }                                                                                                                                                                                           
-                "9i": {                                                                                                                                                                                     
+                "9.2.0.8": {                                                                                                                                                                                     
                     case $architecture {                                                                                                                                                                    
                         "sparc64": {                                                                                                                                                                        
                             $system_packages = ["SUNWarc", "SUNWbtool", "SUNWhea", "SUNWlibm", "SUNWlibms", "SUNWsprot", "SUNWtoo", "SUNWi1of", "SUNWxwfnt"]                                                
@@ -53,7 +53,7 @@ class oracle::system_packages {
                 }                                                                                                                                                                                           
                                                                                                                                                                                                             
                 default: {                                                                                                                                                                                  
-                        fail("INFO - the oracle version $oracle_major_version is not                                                                                                     
+                        fail("INFO - the oracle version $oracle_version is not                                                                                                     
                            yet support by class system_packages.")                                                                                                                                          
                     }                                                                                                                                                                                       
             }                                                                                                                                                                                               

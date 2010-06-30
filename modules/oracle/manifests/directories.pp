@@ -150,6 +150,7 @@ class oracle::directories {
                     File["oracle_home"],
                     File["oracle_major_version"],
                 ],
+        mode => 755
     }
 
 
