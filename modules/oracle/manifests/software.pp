@@ -53,6 +53,7 @@ class oracle::software {
                                     cwd => "/users/oracle/bin",
                                     group => "root",
                                     user => "root",
+                                    creates => "/var/opt/oracle/started_vfb",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
@@ -231,6 +232,7 @@ class oracle::software {
                                     cwd => "/users/oracle/bin",
                                     group => "root",
                                     user => "root",
+                                    creates => "/var/opt/oracle/stopped_vfb",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
@@ -240,6 +242,15 @@ class oracle::software {
                                         File["/users/oracle/bin/stop_vfb.sh"]
                                     ],
                                     timeout => "-1",
+                                }
+
+                                file {
+                                    "/var/opt/oracle/oracle_db_server_soft_installed":
+                                        name => "/var/opt/oracle/oracle_db_server_soft_installed",
+                                        mode => 0644,
+                                        owner => "oracle",
+                                        group => "dba",
+                                        require => Exec["runinstaller-patchset-oui-9208"]
                                 }
 
                             }
@@ -263,6 +274,7 @@ class oracle::software {
                                     cwd => "/users/oracle/bin",
                                     group => "root",
                                     user => "root",
+                                    creates => "/var/opt/oracle/started_vfb",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
@@ -441,6 +453,7 @@ class oracle::software {
                                     cwd => "/users/oracle/bin",
                                     group => "root",
                                     user => "root",
+                                    creates => "/var/opt/oracle/stopped_vfb",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
@@ -455,11 +468,22 @@ class oracle::software {
                                 #
 
         
-                            }
-                        }
-            }
-       }
-    }
+                                file {
+                                    "/var/opt/oracle/oracle_db_server_soft_installed":
+                                        name => "/var/opt/oracle/oracle_db_server_soft_installed",
+                                        mode => 0644,
+                                        owner => "oracle",
+                                        group => "dba",
+                                        require => Exec["runinstaller-patchset-oui-10204"]
+                                }
+                            } #End of 10.2.0.4
+                        } #End of case oracle_version
+                        
+                        
+            }# End of solaris 
+
+       }# End of case operating_system
+    }# End of define
 
     install_oracle_database_server_software {
         "oracle database enterprise software":

@@ -80,6 +80,7 @@ grep 'was successful' $file
 if ((  $? == 0  )); then
     EXITCODE=0
     touch /var/opt/oracle/10.2.0.4_patchset_installed
+    touch /var/opt/oracle/oracle_db_server_soft_installed
     log_and_exit "INFO" "You have installed 10.2.0.4 database server patch software"
 else
     log "INFO" "Not yet successful..."

@@ -21,75 +21,59 @@ log()
     local dataflags="+%Y.%m.%d,%H:%M:%S"                                                                                                                                                                    
                                                                                                                                                                                                             
     echo "[$type] - `date $dataflags` - $message"                                                                                                                                                           
-}  
-
-sleep 90
-
-log "INFO" "Running the oracle silent install ./runInstaller -silent -ignoreSysPrereqs -responseFile <%= responsefile_patchset_path %>  FROM_LOCATION="<%= products_patchset_path %>"  ORACLE_HOME=\"<%= current_oracle_home %>\"  ORACLE_HOME_NAME=\"<%= oracle_patch_version %>\"  UNIX_GROUP_NAME=\"oinstall\" " 
-
-cd <%= disk1_9208_patchset_path %>
-log "INFO" "Current wokring directory: `pwd`" 
-
-log "INFO" "Stopping running processes in oracle home..."
-kill_isqlplus_cmd=`/usr/ucb/ps wwwaux | grep 'app/oracle/product' | grep -v grep |awk '{print $2}' |xargs -n 1 -i kill -9 {}`
-if [ $? -eq 0 ]; then
-    log "INFO" "Running processes in oracle home stopped !"
-else
-    log_and_exit "ERROR" "Could not stopped running processes in oracle home properly: ${kill_isqlplus_cmd}"
-fi
-
-log "INFO" "Stopping isqlplus..."
-kill_isqlplus_cmd=`/usr/ucb/ps wwwaux | grep 'app/oracle/product' | grep isqlplus |awk '{print $2}' |xargs -n 1 -i kill -9 {}`
-if [ $? -eq 0 ]; then
-    log "INFO" "isqlplus stopped !"
-else
-    log_and_exit "ERROR" "Could not stopped isqlplus properly: ${kill_isqlplus_cmd}"
-fi
-
-log "INFO" "Stopping oracle httpd server..."
-$ORACLE_HOME/Apache/Apache/bin/apachectl stop
-kill_httpd_cmd=`/usr/ucb/ps wwwaux | grep 'app/oracle/product' | grep httpd |awk '{print $2}' |xargs -n 1 -i kill -9 {}`
-if [ $? -eq 0 ]; then
-    log "INFO" "httpd stopped !"
-else
-    log_and_exit "ERROR" "Could not stopped httpd properly: ${kill_httpd_cmd}"
-fi
+}    
 
 
-log "INFO" "The runinstaller is starting..."
-./runInstaller -silent -ignoreSysPrereqs  -responseFile <%= responsefile_patchset_path %> FROM_LOCATION="<%= products_patchset_path %>" ORACLE_HOME="<%= current_oracle_home %>"  ORACLE_HOME_NAME="<%= oracle_patch_version %>"  UNIX_GROUP_NAME="oinstall"  
-log "INFO" "The runinstaller is started..."  
 
-sleep 120
+cd <%= oemagent_bin_install_path %>
+log "INFO" "Current wokring directory: `pwd`"
+
+log "INFO" "Moving install binary to temp dir..."
+cp <%= agentDownload_filename %> /var/tmp/<%= agentDownload_filename %>
+cd /var/tmp
+log "INFO" "Current wokring directory: `pwd`"
+
+
+log "INFO" " Running oem agent silent install... "
+log "INFO" "./<%= agentDownload_filename %> -b <%= oemagent_dest_install_path %> -i <%= orainst_loc_path %> -m oem.wanadoo.nl -r 4889 " 
+
+./<%= agentDownload_filename %> -b <%= oemagent_dest_install_path %> -i <%= orainst_loc_path %> -m oem.wanadoo.nl -r 4889 
+log "INFO" "oem agent silent install finished..."
+
+sleep 60
 orainventory_path=<%= orainventory_path %>
 oracle_install_log=`ls -lrt ${orainventory_path}/logs |grep oraInstall | grep out | tail -1 | awk '{print $9}'`
 oracle_install_log_path="${orainventory_path}/logs/${oracle_install_log}"
-#oracle_install_log_path=`find ${oracinventory_path}/logs -type f -print| xargs -n 1 -i egrep -l "TOPLEVEL_COMPONENT.*9.2.0.8" {}`
-
+#oracle_install_log_path=$(find `find /var/tmp -type d -name \*agentDownload\* -print` -name \*.log -print)
 
 if [ -e "${oracle_install_log_path}" ]; then                                                                                                                                                                
-    log "INFO" "Found an oracle install log file: ${oracle_install_log_path}"                                                                                                                               
+    log "INFO" "Found an oracle install log file: ${oracle_install_log_path}"
 else                                                                                                                                                                                                        
-    log_and_exit "ERROR" "Could not find an oracle install log file"                                                                                                                                        
-fi
+    log_and_exit "ERROR" "Could not find an oracle install log file"
+fi 
+
+
 test_pad()
 {
-local file=$1
-sleep 5
-grep 'was successful' $file
-if ((  $? == 0  )); then 
-    EXITCODE=0 
-    touch /var/opt/oracle/9.2.0.8_patchset_installed 
-    touch /var/opt/oracle/oracle_db_server_soft_installed
-    log_and_exit "INFO" "You have installed 9.2.0.8 database server patch software" 
-else 
-    log "INFO" "Not yet successful..."
-fi
-return 1
+        local file=$1                                                                                                                                                                                        
+        sleep 5 
+        grep 'Setup successful' $file
+        if ((   $? == 0  )); then
+                touch /var/opt/oracle/9.2.0.1_installed
+                EXITCODE=0
+                touch /var/opt/oracle/oemagent_installed
+                log_and_exit "INFO" "You have installed oem agent software"
+        else
+                log "INFO" "Not yet successful..."
+        fi
+
+        return 1
 }
 
 while true; do
         test_pad ${oracle_install_log_path} 
-        sleep 5
-done                                                                                                                                                                                                        
-exit 0  
+        sleep 5 
+done
+
+
+exit 0

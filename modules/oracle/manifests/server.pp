@@ -29,4 +29,5 @@ class oracle::server::database inherits oracle::server {
 
 class oracle::server::database::enterprise inherits oracle::server::database {
     include oracle::software
+    include oracle::oemagent
 }

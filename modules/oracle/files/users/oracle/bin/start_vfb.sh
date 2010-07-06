@@ -30,3 +30,4 @@ else
   ps -fe | grep  -v grep | grep $XSUN
 fi
 
+touch /var/opt/oracle/started_vfb

@@ -13,6 +13,7 @@ else
   kill -9 $PROC_PID > /var/tmp/stop_vfb_$DATE.out 
   if [ $? -eq 0 ]; then
         echo "XSUN Virtual Frame Buffer stopped."
+        touch /var/opt/oracle/stopped_vfb
         exit 0
   else
         echo "XSUN Virtual Frame Buffer failed to be stopped ;-("
@@ -20,3 +21,4 @@ else
   fi
   
 fi
+
