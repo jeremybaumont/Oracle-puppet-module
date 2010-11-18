@@ -27,7 +27,8 @@ if [ "$PROC_PID" == "" ]; then
   exit 1
 else
   echo "XSUN Virtual Frame Buffer start successfully !"
-  ps -fe | grep  -v grep | grep $XSUN
+#  ps -fe | grep  -v grep | grep $XSUN
 fi
 
 touch /var/opt/oracle/started_vfb
+exit 0
