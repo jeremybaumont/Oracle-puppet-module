@@ -75,23 +75,32 @@ class oracle::software {
                                     owner => "oracle",
                                     group => "oinstall", 
                                 } 
+
+                                # build a wrapper script 
+                                file{
+                                    "wrapper_9.2.0.1.sh":
+                                    name => "${tmp_dir}/wrapper_9.2.0.1.sh",
+                                    content => template("oracle/wrapper_9.2.0.1-template.erb"),
+                                    mode => 755,
+                                    owner => "oracle",
+                                } 
+
                                 
                                 # run silent installer of 9.2.0.1 Disk 1
                                 # Orable database server software
                                 # enterprise edition
                                 exec {
                                     "runinstaller-oui-9201":
-                                    command => "wruninstaller_9.2.0.1.sh > ${tmp_dir}/runinstaller-oui_9.2.0.1.log",
+                                    command => "wrapper_9.2.0.1.sh > ${tmp_dir}/runinstaller-oui_9.2.0.1.log",
                                     path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", 
                                             "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
                                     cwd => "${tmp_dir}",
                                     creates => "/var/opt/oracle/9.2.0.1_installed",
-                                    group => "oinstall",
-                                    user => "oracle",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [ 
+                                        File ["wrapper_9.2.0.1.sh"],
                                         File ["wruninstaller_9.2.0.1.sh"],
                                         Exec ["9208_start_vfb"],
                                         File["var_opt_oracle"],
@@ -177,6 +186,15 @@ class oracle::software {
                                     owner => "oracle",
                                     group => "oinstall", 
                                 } 
+
+                                # build a wrapper script 
+                                file{
+                                    "wrapper_9.2.0.8.sh":
+                                    name => "${tmp_dir}/wrapper_9.2.0.8.sh",
+                                    content => template("oracle/wrapper_9.2.0.8-template.erb"),
+                                    mode => 755,
+                                    owner => "oracle",
+                                } 
                                 
                                 # run silent installer of 9.2.0.8 Disk 1
                                 # Orable database server software
@@ -184,7 +202,7 @@ class oracle::software {
                                 exec {
                                     "runinstaller-patchset-oui-9208":
                                     command => 
-                                "wruninstaller_9.2.0.8_patchset.sh > ${tmp_dir}/runinstaller-patchset-oui_9.2.0.8.log",
+                                "wrapper_9.2.0.8.sh > ${tmp_dir}/runinstaller-patchset-oui_9.2.0.8.log",
                                     path => ["/usr/bin", 
                                             "/usr/sbin", 
                                             ".", 
@@ -199,12 +217,11 @@ class oracle::software {
                                             "/opt/SUNWspro/bin"],
                                     cwd => "${tmp_dir}",
                                     creates => "/var/opt/oracle/9.2.0.8_patchset_installed",
-                                    group => "oinstall",
-                                    user => "oracle",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [
+                                        File ["wrapper_9.2.0.8.sh"],
                                         File ["wruninstaller_9.2.0.8_patchset.sh"],
                                         Exec ["runinstaller-oui-9201"],
                                         Exec ["9208_stop_oracle_home_proc"],
@@ -296,23 +313,31 @@ class oracle::software {
                                     owner => "oracle",
                                     group => "oinstall", 
                                 } 
+
+                                # build a wrapper script 
+                                file{
+                                    "wrapper_10.2.0.1.sh":
+                                    name => "${tmp_dir}/wrapper_10.2.0.1.sh",
+                                    content => template("oracle/wrapper_10.2.0.1-template.erb"),
+                                    mode => 755,
+                                    owner => "oracle",
+                                } 
                                 
                                 # run silent installer of 10.2.0.1 Disk 1
                                 # Orable database server software
                                 # enterprise edition
                                 exec {
                                     "runinstaller-oui-10201":
-                                    command => "wruninstaller_10.2.0.1.sh > ${tmp_dir}/runinstaller-oui_10.2.0.1.log",
+                                    command => "wrapper_10.2.0.1.sh > ${tmp_dir}/runinstaller-oui_10.2.0.1.log",
                                     path => ["/usr/bin", "/usr/sbin", ".", "/opt/csw/bin", "/usr/sbin", "/usr/bin", 
                                             "/usr/dt/bin", "/usr/openwin/bin", "/usr/ccs/bin",  "/usr/sfw/bin", "/usr/perl5/5.8.4/bin", "/opt/SUNWspro/bin"],
                                     cwd => "${tmp_dir}",
                                     creates => "/var/opt/oracle/10.2.0.1_installed",
-                                    group => "oinstall",
-                                    user => "oracle",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [ 
+                                        File ["wrapper_10.2.0.1.sh"],
                                         File ["wruninstaller_10.2.0.1.sh"],
                                         Exec ["10204_start_vfb"],
                                         File["var_opt_oracle"],
@@ -398,6 +423,15 @@ class oracle::software {
                                     owner => "oracle",
                                     group => "oinstall", 
                                 } 
+
+                                # build a wrapper script 
+                                file{
+                                    "wrapper_10.2.0.4.sh":
+                                    name => "${tmp_dir}/wrapper_10.2.0.4.sh",
+                                    content => template("oracle/wrapper_10.2.0.4-template.erb"),
+                                    mode => 755,
+                                    owner => "oracle",
+                                } 
                                 
                                 # run silent installer of 10.2.0.4 Disk 1
                                 # Orable database server software
@@ -405,7 +439,7 @@ class oracle::software {
                                 exec {
                                     "runinstaller-patchset-oui-10204":
                                     command => 
-                                "wruninstaller_10.2.0.4_patchset.sh > ${tmp_dir}/runinstaller-patchset-oui_10.2.0.4.log",
+                                "wrapper_10.2.0.4.sh > ${tmp_dir}/runinstaller-patchset-oui_10.2.0.4.log",
                                     path => ["/usr/bin", 
                                             "/usr/sbin", 
                                             ".", 
@@ -420,12 +454,11 @@ class oracle::software {
                                             "/opt/SUNWspro/bin"],
                                     cwd => "${tmp_dir}",
                                     creates => "/var/opt/oracle/10.2.0.4_patchset_installed",
-                                    group => "oinstall",
-                                    user => "oracle",
                                     environment => ["DISPLAY=:0.0", "MAILTO=DL-ito.bs.dba@is.online.nl"],
                                     logoutput => true,
                                     returns => [0,1],
                                     require => [
+                                        File ["wrapper_10.2.0.4.sh"],
                                         File ["wruninstaller_10.2.0.4_patchset.sh"],
                                         Exec ["runinstaller-oui-10201"],
                                         Exec ["10204_stop_oracle_home_proc"],
