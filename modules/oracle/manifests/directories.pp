@@ -82,14 +82,14 @@ class oracle::directories {
             mode => 755
     }
 
-    oracle_dir {
-        "/logs":
-            path => "/logs",
-            ensure => directory,
-            owner => "root",
-            group => "root",
-            mode => 755
-    }
+#    oracle_dir {
+#        "/logs":
+#            path => "/logs",
+#            ensure => directory,
+#            owner => "root",
+#            group => "root",
+#            mode => 755
+#    }
 
 
     oracle_dir {
