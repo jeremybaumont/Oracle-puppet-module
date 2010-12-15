@@ -59,7 +59,6 @@ test_pad()
         sleep 5 
         grep 'Setup successful' $file
         if ((   $? == 0  )); then
-                touch /var/opt/oracle/9.2.0.1_installed
                 EXITCODE=0
                 touch /var/opt/oracle/oemagent_installed
                 log_and_exit "INFO" "You have installed oem agent software"
