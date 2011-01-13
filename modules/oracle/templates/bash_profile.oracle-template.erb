@@ -52,11 +52,13 @@ ORACLE_BASE=<%= oracle_base_path %>
 ORACLE_VERSION=<%= oracle_version %>
 ORACLE_HOME=<%= oracle_home_path %>
 ORACLE_SID=<%= oracle_sid %>
+IMFLOG=/logs/oracle
+NLS_LANG=American_America.UTF8
 
-export ORACLE_BASE ORACLE_VERSION ORACLE_HOME ORACLE_SID
+export IMFLOG ORACLE_BASE NLS_LANG ORACLE_VERSION ORACLE_HOME ORACLE_SID
 
 # update lib path and command path
-export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$HOME/bin:$PATH
+export PATH=/opt/IMF/current/bin:$ORACLE_BASE/bin:$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$HOME/bin:$PATH
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH
 
 # oracle alias to speed up productivity
