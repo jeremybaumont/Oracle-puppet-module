@@ -54,8 +54,9 @@ ORACLE_HOME=<%= oracle_home_path %>
 ORACLE_SID=<%= oracle_sid %>
 IMFLOG=/logs/oracle
 NLS_LANG=American_America.UTF8
+PERL5LIB=/opt/IMS/lib:.
 
-export IMFLOG ORACLE_BASE NLS_LANG ORACLE_VERSION ORACLE_HOME ORACLE_SID
+export PERL5LIB IMFLOG ORACLE_BASE NLS_LANG ORACLE_VERSION ORACLE_HOME ORACLE_SID
 
 # update lib path and command path
 export PATH=/opt/IMF/current/bin:$ORACLE_BASE/bin:$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$HOME/bin:$PATH
